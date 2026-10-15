@@ -1,0 +1,31 @@
+# GRFC 2026 — primary drivers of acute food insecurity, reference year 2025
+#
+# PROVENANCE (see docs/sources.md):
+# Publisher: Global Network Against Food Crises (GNAFC)
+# Report:    2026 Global Report on Food Crises (published 2026-04-24)
+# URL:       https://www.fightfoodcrises.net/global-report-food-crises
+# Full PDF:  https://reliefweb.int/attachments/81ec5beb-e188-402b-999b-9bdc3bfa62bf/cd9424en.pdf
+#
+# VALUES: transcribed from the report's Section 2.2 (drivers):
+#   "Conflict and insecurity were the primary driver in 19 countries/
+#    territories, where 147.4 million people faced high levels of acute food
+#    insecurity in 2025 – more than 50 percent of all people in countries with
+#    food crises."
+#   "Weather extremes were the primary driver in 16 countries, where 87.5
+#    million people faced high levels of acute food insecurity."
+#   "Economic shocks were the primary driver in 12 countries/territories,
+#    where 29.8 million people faced high levels of acute food insecurity."
+# Also reported: 31 countries/territories reported economic shocks as an
+# ADDITIONAL driver (not primary) in 2025.
+#
+# NOTE: The GRFC attributes one PRIMARY driver per country where possible.
+# Drivers overlap in reality; these categories are not mutually exclusive
+# populations. Totals by driver must not be added to the 266 million total —
+# the attribution reflects the most influential driver per country context.
+#
+# Retrieved: 2026-10-15
+#
+driver,millions,countries
+Conflict and insecurity,147.4,19
+Weather extremes,87.5,16
+Economic shocks,29.8,12
