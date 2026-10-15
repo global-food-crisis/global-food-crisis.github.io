@@ -3,7 +3,8 @@
 Every statistic rendered on the site, with its primary source, statistical
 reference year, retrieval date and license. **Reference year = the year the
 data describe, not the publication year of the report.** All URLs were
-retrieved and verified on **2026-10-15**.
+retrieved and verified on **2026-10-15**; action-section links were
+re-verified and repaired on **2026-10-16** (see "Action resources" below).
 
 ## Headline indicators (Chapter 1 & 2)
 
@@ -67,10 +68,39 @@ retrieved and verified on **2026-10-15**.
 
 ## Action resources (Chapter 6)
 
-All external recommendations link to official, stable entry points verified on
-2026-10-15: Our World in Data (hunger topic), FAO SOFI page, GRFC (fightfoodcrises.net),
-IPC, WFP donate + ShareTheMeal, The Global FoodBanking Network, UNICEF
-nutrition, UNEP (food waste + Act Now), FAO food loss & waste, UN SDG 2.
+All external recommendations link to official, stable entry points. Link
+status was re-checked on **2026-10-16** (page content, not just HTTP
+status); four previously broken entries were replaced or corrected:
+
+- `foodbanking.org/get-involved/` (site 404) → **Our Global Reach** member
+  directory, `https://www.foodbanking.org/global-reach/` ("Find a GFN
+  Member", 47 country pages).
+- `unep.org/act-now` (site 404; also miscategorized under "volunteer") →
+  UNEP story **Seven ways to cut your food waste and support the planet**,
+  `https://www.unep.org/news-and-stories/story/seven-ways-cut-your-food-waste-and-support-planet`,
+  moved to the "waste less food" category.
+- `fao.org/food-loss-and-food-waste-flw` (site 404) → FAO Policy Support
+  theme page **Food Loss and Food Waste**,
+  `https://www.fao.org/policy-support/policy-themes/food-loss-and-food-waste`
+  (13.2% lost post-harvest before retail; 19% wasted at retail/food
+  service/household).
+- `www.sdgs.un.org/goals/goal2` (DNS failure — wrong host) →
+  `https://sdgs.un.org/goals/goal2` (UN DESA SDG 2 goal page).
+
+Also verified 2026-10-16: Our World in Data (hunger topic), FAO SOFI
+publication + newsroom pages, GRFC (fightfoodcrises.net), WFP donate +
+ShareTheMeal + GRFC 2026 joint press release, The Global FoodBanking Network
+home page, UNICEF nutrition, UNEP Food Waste Index Report 2024.
+`ipcinfo.org/famine-facts` could not be re-checked from this environment
+(Cloudflare bot wall blocks both headless browser and reader; no user report
+of failure — left as is).
+
+The Chapter 2 child-malnutrition note now links the GNAFC Global Report on
+Food Crises page (same URL as the acute-hunger indicator card); the
+35.5 million / ~10 million severe figures were re-verified against the
+GRFC 2026 joint launch press release (WFP, 2026-04-24):
+https://www.wfp.org/news/acute-food-insecurity-and-malnutrition-remain-alarmingly-high-crises-deepen-un-eu-and-partners
+
 The project's own repository link stays hidden until configured in
 `src/lib/site.ts`.
 
