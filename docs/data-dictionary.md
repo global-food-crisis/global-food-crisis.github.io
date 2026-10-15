@@ -57,7 +57,12 @@ Chapter 5 (TrendChart + table + CSV export).
                     "number":  [ { "year": 2025, "value": 645 } ] },
   "regions": {
     "africa":   [ { "year": 2000, "value": 22.1 }, ... ], // percent, 2000–2024
-    "asia":     [...], "americas": [...], "europe": [...], "oceania": [...]
+    "asia":     [...], "americas": [...], "oceania": [...],
+    "europe":   [ { "year": 2000, "value": 2.5, "below": true }, ... ]
+    // "below": true → FAO "<2.5%" reporting floor (Europe is below the
+    // floor in every year): the value 2.5 is the floor, not an exact
+    // observation. The chart draws such series dashed and labels them
+    // "<2.5%" — see docs/methodology.md.
   }
 }
 ```

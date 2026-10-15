@@ -36,7 +36,19 @@ Companion documents: [`sources.md`](sources.md) (evidence table),
   maintain a normal, active and healthy life. Modeled by FAO from Food
   Balance Sheets + food-access distribution data. Countries below 2.5% are
   reported by FAO as "<2.5%" — the site preserves that floor rather than
-  showing a false-precision 0.x%.
+  showing a false-precision 0.x%. The same convention applies to the FAO
+  regional aggregates: the Europe series sits below the floor in every
+  year, so the Chapter 5 trend chart draws it as a dashed line at 2.5%
+  labelled "<2.5%" (data points carry `below: true` in trend.json) — a
+  reporting floor, not an exact observation.
+- **FAO Food Price Index (FFPI)** — a measure of the monthly change in
+  international prices of a basket of food commodities (cereals, vegetable
+  oils, dairy, meat and sugar), weighted by their average 2014–2016 export
+  shares, with the 2014–2016 average set to 100 (FAO definition). The site
+  charts **annual averages** of the monthly index. It measures world
+  export prices, not retail or household food costs — Chapter 4 states
+  this and the base-period reading rule (125 ≈ 25% above the 2014–2016
+  baseline, not +25% versus the previous year) in the chart explainer.
 - **Moderate/severe food insecurity (FIES, SDG 2.1.2)** — share of the
   population reporting limited, uncertain or inadequate access to food over
   the previous 12 months, from direct survey experience questions scaled
