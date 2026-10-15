@@ -112,7 +112,7 @@ export function Scale() {
             >
               {t.ch2.popNote}
             </p>
-            <SourceNote name={t.ch2.popNoteSource} />
+            <SourceNote name={t.ch2.popNoteSource} url={t.ch2.popNoteSourceUrl} />
           </aside>
         </Reveal>
       </div>

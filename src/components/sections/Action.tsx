@@ -6,7 +6,6 @@
 
 import { useState } from "react";
 import { useI18n } from "@/i18n";
-import { SITE_REPO_URL } from "@/lib/site";
 import { Reveal } from "../Reveal";
 
 export function Action() {
@@ -67,20 +66,14 @@ export function Action() {
                   <p className="body">{action.body}</p>
                   <p className="caveat">{action.caveat}</p>
                   <ul className="resource-list">
-                    {action.resources.map((r) => {
-                      // The GitHub entry stays hidden until SITE_REPO_URL is set.
-                      const url =
-                        r.url === "https://github.com/" ? SITE_REPO_URL : r.url;
-                      if (!url) return null;
-                      return (
-                        <li key={r.url}>
-                          <a href={url} target="_blank" rel="noopener noreferrer">
-                            {r.name} ↗
-                          </a>
-                          <span className="note">{r.note}</span>
-                        </li>
-                      );
-                    })}
+                    {action.resources.map((r) => (
+                      <li key={r.url}>
+                        <a href={r.url} target="_blank" rel="noopener noreferrer">
+                          {r.name} ↗
+                        </a>
+                        <span className="note">{r.note}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </Reveal>

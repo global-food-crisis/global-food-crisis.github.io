@@ -156,6 +156,8 @@ export const en = {
     popNote:
       "In 2025, 35.5 million children in food-crisis contexts were acutely malnourished, including nearly 10 million severely — a separate measurement again, focused on children's nutrition rather than food access.",
     popNoteSource: "GRFC 2026",
+    popNoteSourceUrl:
+      "https://www.fightfoodcrises.net/global-report-food-crises",
   },
   ch3: {
     kicker: "Chapter 3 — The Geography",
@@ -366,7 +368,7 @@ export const en = {
       { id: "volunteer", label: "I want to volunteer" },
       { id: "waste", label: "I want to waste less food" },
       { id: "advocate", label: "I want to push for policy" },
-      { id: "code", label: "I want to contribute code" },
+      { id: "share", label: "I want to share this site" },
     ],
     actions: [
       {
@@ -402,8 +404,7 @@ export const en = {
           "Hunger is not only a distant problem: food insecurity exists in nearly every country, and local food banks, community kitchens and school-meal programs run substantially on volunteers. Two hours a month is a real contribution almost anywhere.",
         caveat: "Choose roles that fit your skills — warehouse sorting, driving, translating, accounting and web skills are all in short supply.",
         resources: [
-          { name: "Find your local food bank", url: "https://www.foodbanking.org/get-involved/", note: "The Global FoodBanking Network's member map" },
-          { name: "UNEP — Act Now on food waste", url: "https://www.unep.org/act-now", note: "Everyday actions, officially curated" },
+          { name: "The Global FoodBanking Network — Our Global Reach", url: "https://www.foodbanking.org/global-reach/", note: "Find a member food bank by country" },
         ],
       },
       {
@@ -414,7 +415,8 @@ export const en = {
         caveat: "Honesty first: wasting less does NOT directly deliver food to people facing hunger — the surplus is rarely where the hunger is. Both problems are real; they are different problems. Claiming your leftovers feed the hungry is exactly the overselling this site exists to avoid.",
         resources: [
           { name: "UNEP Food Waste Index Report 2024", url: "https://www.unep.org/resources/publication/food-waste-index-report-2024", note: "The global evidence base" },
-          { name: "FAO — Food loss and food waste", url: "https://www.fao.org/food-loss-and-food-waste-flw", note: "Where loss happens along the chain" },
+          { name: "UNEP — Seven ways to cut your food waste", url: "https://www.unep.org/news-and-stories/story/seven-ways-cut-your-food-waste-and-support-planet", note: "Everyday actions, officially curated" },
+          { name: "FAO — Food loss and food waste", url: "https://www.fao.org/policy-support/policy-themes/food-loss-and-food-waste", note: "Where loss happens along the chain" },
         ],
       },
       {
@@ -425,18 +427,17 @@ export const en = {
         caveat: "Advocacy works best when it is specific: a named program, a budget line, a decision with a date. Vague support for 'ending hunger' is easy to ignore.",
         resources: [
           { name: "SOFI 2026 — policy priorities (press release)", url: "https://www.fao.org/newsroom/detail/sofi-2026--hunger-not-inevitable--fao-says-as-global-hunger-report-shows-progress/en", note: "What FAO's member states are being asked to do" },
-          { name: "UN SDG 2 — Zero Hunger", url: "https://www.sdgs.un.org/goals/goal2", note: "The framework and its targets" },
+          { name: "UN SDG 2 — Zero Hunger", url: "https://sdgs.un.org/goals/goal2", note: "The framework and its targets" },
         ],
       },
       {
-        id: "code",
-        title: "Contribute to this open project",
+        id: "share",
+        title: "Pass it on — the contribution anyone can make",
         body:
-          "This site is open source: the data pipeline, the code and the translations all live in a public repository. Useful contributions include refreshing the datasets when FAO publishes new estimates, adding chapters (famine case files, nutrition, food systems), improving accessibility, and adding translations.",
-        caveat: "Data contributions must follow the project's evidence rules: every number needs a source, a reference year and a license check. See the methodology notes in the repository.",
-        resources: [
-          { name: "The repository (GitHub)", url: "https://github.com/", note: "The README explains setup, the data pipeline and conventions" },
-        ],
+          "You don't need to write code to help this project. Sharing is what keeps it alive: send the link to someone who argues about hunger numbers, use a chart in a class, a talk or an article, or recommend it where misinformation about hunger spreads. Independent, evidence-first work travels only as far as its readers carry it.",
+        caveat:
+          "Reuse with care: this site's code and documentation are MIT-licensed, but the data behind every figure belongs to its publishers — FAO, WFP, UNEP, IPC and others — and third-party material keeps its own terms. Cite the original publisher when you quote numbers; link back here when you reuse the explanations and charts.",
+        resources: [],
       },
     ],
     closingTitle: "One honest sentence",

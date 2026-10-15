@@ -148,6 +148,8 @@ export const zhTW: Dictionary = {
     popNote:
       "2025 年，糧食危機地區有 3,550 萬名兒童處於急性營養不良，其中近 1,000 萬為重度——這又是另一種測量，關注兒童營養而非糧食取得。",
     popNoteSource: "GRFC 2026",
+    popNoteSourceUrl:
+      "https://www.fightfoodcrises.net/global-report-food-crises",
   },
   ch3: {
     kicker: "第 3 章 — 地理",
@@ -354,7 +356,7 @@ export const zhTW: Dictionary = {
       { id: "volunteer", label: "我想當志工" },
       { id: "waste", label: "我想減少食物浪費" },
       { id: "advocate", label: "我想推動政策" },
-      { id: "code", label: "我想貢獻程式" },
+      { id: "share", label: "我想分享這個網站" },
     ],
     actions: [
       {
@@ -390,8 +392,7 @@ export const zhTW: Dictionary = {
           "飢餓不全是遠方的故事：幾乎每個國家都有糧食不安全，而本地食物銀行、社區廚房與學校供餐，有很大一部分靠志工運轉。每月兩小時，幾乎在任何地方都是實實在在的貢獻。",
         caveat: "選擇符合你技能的角色——倉儲分拣、駕駛、翻譯、會計與網頁技能都很缺。",
         resources: [
-          { name: "尋找你附近的食物銀行", url: "https://www.foodbanking.org/get-involved/", note: "全球食物銀行網絡會員地圖" },
-          { name: "UNEP——Act Now 食物浪費行動", url: "https://www.unep.org/act-now", note: "官方策劃的日常行動" },
+          { name: "全球食物銀行網絡——全球服務範圍", url: "https://www.foodbanking.org/global-reach/", note: "依國家尋找會員食物銀行" },
         ],
       },
       {
@@ -402,7 +403,8 @@ export const zhTW: Dictionary = {
         caveat: "誠實優先：減少浪費「並不會」直接把食物送到飢餓的人手上——剩食很少剛好在飢餓發生的地方。兩個問題都真實存在，但它們是不同的問題。宣稱你的剩飯養活了飢餓的人，正是這個網站要避免的那種誇大。",
         resources: [
           { name: "UNEP《2024 食物浪費指數報告》", url: "https://www.unep.org/resources/publication/food-waste-index-report-2024", note: "全球證據基礎" },
-          { name: "FAO——食物損失與浪費", url: "https://www.fao.org/food-loss-and-food-waste-flw", note: "損失發生在供應鏈的哪些環節" },
+          { name: "UNEP——七個減少食物浪費的方法", url: "https://www.unep.org/news-and-stories/story/seven-ways-cut-your-food-waste-and-support-planet", note: "官方策劃的日常行動" },
+          { name: "FAO——食物損失與浪費", url: "https://www.fao.org/policy-support/policy-themes/food-loss-and-food-waste", note: "損失發生在供應鏈的哪些環節" },
         ],
       },
       {
@@ -413,18 +415,17 @@ export const zhTW: Dictionary = {
         caveat: "倡議愈具體愈有效：指名計畫、指名預算項目、指名有日期的決策。空泛地支持「終結飢餓」太容易被忽略。",
         resources: [
           { name: "SOFI 2026 政策優先事項（新聞稿）", url: "https://www.fao.org/newsroom/detail/sofi-2026--hunger-not-inevitable--fao-says-as-global-hunger-report-shows-progress/en", note: "FAO 對會員國的具體呼籲" },
-          { name: "聯合國 SDG 2——零飢餓", url: "https://www.sdgs.un.org/goals/goal2", note: "目標框架與指標" },
+          { name: "聯合國 SDG 2——零飢餓", url: "https://sdgs.un.org/goals/goal2", note: "目標框架與指標" },
         ],
       },
       {
-        id: "code",
-        title: "貢獻這個開源專案",
+        id: "share",
+        title: "把網站傳出去——人人都能做到的貢獻",
         body:
-          "本站是開源專案：資料管線、程式碼與翻譯都在公開儲存庫中。有用的貢獻包括：FAO 發布新估計時更新資料、撰寫新章節（飢荒案例檔案、營養、糧食系統）、改善無障礙設計、新增翻譯。",
-        caveat: "資料貢獻必須遵守專案的證據規則：每個數字都要有來源、年份與授權檢查。請見儲存庫中的方法說明。",
-        resources: [
-          { name: "專案儲存庫（GitHub）", url: "https://github.com/", note: "README 說明環境設置、資料管線與貢獻規範" },
-        ],
+          "幫助這個網站不需要寫程式。分享，就是讓它活下去的方式：把連結傳給那位常爭論飢餓數字的朋友、在課堂、演講或文章中使用一張圖表，或在錯誤資訊流傳之處推薦它。獨立、以證據為本的內容，能走多遠，取決於讀者願意傳多遠。",
+        caveat:
+          "重用前請留意：本站的程式碼與文件採 MIT 授權；但每個數字背後的資料屬於其發布者——FAO、WFP、UNEP、IPC 等——第三方素材亦各有其授權條款。引用數字時請標註原始發布機構；重用本站的解說與圖表時，請連結回本站。",
+        resources: [],
       },
     ],
     closingTitle: "一句誠實的話",
