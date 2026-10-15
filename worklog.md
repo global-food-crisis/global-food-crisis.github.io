@@ -52,3 +52,58 @@ Stage Summary:
 - Site feature-complete and browser-verified in both languages on desktop and mobile
 - Definition of Done status: evidence-based chapters ✓, responsive ✓, charts/map with verified data ✓, sources/methodology documented ✓, EN + zh-TW ✓, action section with credible links ✓, lint+data+i18n tests pass ✓, deployment config written (export build not run in sandbox per environment constraints — CI runs it) ✓
 - Remaining for user: create GitHub repo + push, enable Pages (Source: GitHub Actions), set SITE_REPO_URL in src/lib/site.ts
+
+---
+Task ID: 3
+Agent: Super Z (main agent)
+Task: Fix blank Chapter 4 "FAO Food Price Index" chart on the deployed site
+
+Work Log:
+- Reproduced first: browser pixel analysis of the live chart found axes drawn (2,449 cold-gray px) but 0 gold line px / 0 area fill px — line invisible, no console errors
+- Root cause confirmed in ECharts 6.1.0 source (not just hypothesis): with `xAxis.type: "category"` the x of each `[x, y]` pair goes through `OrdinalScale.parse` — strings are looked up via `OrdinalMeta.getOrdinal` (a Map keyed by the raw value), numbers are `mathRound`ed and treated as an ordinal INDEX. With 26 categories (indices 0–25), year 2022 → index 2022 → normalize = 80.88 (≈80× the axis width) → every point laid out far off-canvas. Ordinal.js's own comment documents this exact trap ("a value is 2017, which is a number but is expected to be treated as a category")
+- Fix (src/components/charts/PriceIndexChart.tsx only): years converted to strings at all five usage points — xAxis.data, line series pairs, markPoint coord; axisLabel.formatter now takes string v and tests Number(v) % 5; tooltip value typed [string, number]; empty-series guard added around the previously unguarded `reduce` (peak → null → markPoint omitted), hooks unchanged
+- Second latent bug found & fixed in the same file: `itemStyle: { color: THEME.map6 }` referenced a property that does not exist in BaseChart's THEME (undefined) → ECharts fell back to default blue. Now `THEME.mapScale[5]` (#c05b3b rust, the site's highest-intensity accent). Previously masked because the marker was off-canvas; surfaced once coords were fixed
+- Verified unaffected: Causes.tsx passes fpi.data.series correctly; BaseChart registers all needed modules (Line/MarkLine/MarkPoint/Grid/Tooltip/CanvasRenderer); lazy loading + container sizing normal
+- CSV note: trend.csv's `#` source-comment header kept — the site only links it as a download (no runtime parsing); validate_data.py validates trend.json, not the CSV. GitHub's preview "Illegal quoting" warning is cosmetic
+- Validation (same as CI): ESLint 0 errors; i18n parity 191 paths OK; data validation 19,705 checks / 0 failures (FPI file untouched: 26 values, peak 144.5 @ 2022)
+- Static export build run locally exactly as CI (NEXT_OUTPUT=export, NEXT_PUBLIC_BASE_PATH="" — root site), served via python http.server and browser-verified
+- Browser verification (dev + export builds, EN & zh-TW, desktop 1280 + mobile 390): gold line 2,202 px (identical both locales), area fill 66,259 px, markPoint label "2022: 144.5" (78 px), rust marker 35 px / 0 default-blue px, dashed 100 baseline at grid mid (1,165 px), tooltips 2022→144.5 and 2002→53.4, no console errors, no horizontal overflow on mobile; VLM visual QA passed (line shape, years 2000/2010/2020, baseline, peak label, palette-consistent marker, no clipping)
+- deploy.yml trigger line verified intact via hexdump (`branches: [main]`; earlier `cat` output had mangled `[m` as an ANSI escape)
+- Known non-fatal warning (all charts, pre-existing, out of scope): ECharts 6 logs "grid.containLabel but no use(LegacyGridContainLabel)" — cosmetic, does not affect rendering
+- Local commit 5ef9001 (no push, per rule); deliverables in download/: PriceIndexChart.tsx + fpi-fix zip
+- Restarted dev server after build; static verification server on 4173 stopped
+
+Stage Summary:
+- Blank FPI chart root-caused (numeric years treated as ordinal indices on a category axis in ECharts 6) and fixed by stringifying years; bonus fix of undefined THEME.map6 marker color
+- Single production file changed: src/components/charts/PriceIndexChart.tsx
+- All validations and static-export browser verification passed in both languages; user to replace the one file on GitHub and let Actions redeploy
+
+---
+Task ID: 4
+Agent: Super Z (main agent)
+Task: Chapter 5 trend-chart fixes (Africa curve invisible, Europe 2.5%, legend colors) + Chapter 4 FPI explainer
+
+Work Log:
+- Investigated before fixing (all confirmed against data/code/sources):
+  * Africa invisible: trend.json africa values are 15.5–22.1% while TrendChart fixed yAxis.max = 14 → the whole curve sat above the axis ceiling (tooltip read data, not layout, so it still showed values). Asia's peak 14.9 was also slightly clipped.
+  * Europe 2.5%: flat 2.5 for all 25 years in OWID source; many European countries (DEU/FRA/GBR/POL/ESP/ITA/SRB) pinned at exactly 2.5 while Ukraine shows real values — plus OWID documentation ("The FAO reports all values below 2.5% as '< 2.5%' due to high uncertainty") and SOFI 2026 ("less than 2.5 percent in Northern America and Europe"). Conclusion: 2.5 is FAO's reporting floor, not an exact observation. process_data.py already implemented this convention at country level (below flag); regions lacked it.
+  * Legend colors: region series set only lineStyle color (no top-level series color), so ECharts resolved legend icons from its default palette by series index — palette colors shifted whenever the selection changed; chips had no color dots.
+- Fixes:
+  * New src/lib/trendChartLogic.ts: fixed region→color map (kept the existing curve colors), nicePercentMax(), isThresholdFloorSeries(), types — pure module shared by chart/chips/legend and unit-tested.
+  * TrendChart.tsx: every series now has stable id + explicit top-level color (legend, curve, tooltip marker and chip dots all resolve through the one map); yAxis percent max adapts to visible series (multiples of 5, fixed 5% ticks — 25% with Africa selected); Europe (all-flagged series) drawn dashed; tooltip reads the below flag from the data and shows "<2.5%"/"低於 2.5%"; legend set selectedMode:false so legend clicks cannot desync from the chips; region chips got fixed-color dots.
+  * process_data.py: region/world percent points now carry below:true when at the 2.5 floor (same FAO convention as the country file); regenerated trend.json and diffed against a backup — all other files byte-identical, zero value changes, only 25 europe flags + meta note added.
+  * validate_data.py: new checks (below flag only on 2.5, europe all-flagged, other regions unflagged, africa min > 14 as a clipping regression guard).
+  * tests/trend-logic.test.mjs (new, wired into `bun run validate` and the CI validate job): 8 tests covering the fixed color map, color stability under selection changes, nicePercentMax no-clipping property, threshold-floor semantics, and the trend.json contract.
+  * Chapter 4 FPI explainer: chart title simplified to "FAO Food Price Index"／"FAO 糧食價格指數"; new chartSubtitle ("Annual averages · index points, 2014–2016 average = 100") and a 3-sentence chartExplainer (international export-market basket, not supermarket prices; 100 base reading rule: 125 = ~25% above baseline, not +25% vs previous year), both languages; chartNote rewritten to stress annual averages vs monthly peak; SourceNote added under the chart (FAO World Food Situation). FAO definition verified against fao.org/worldfoodsituation/FoodPricesIndex and fao.org/prices. No data or chart code touched.
+  * Docs updated: sources.md (Europe floor evidence row with OWID + SOFI URLs), methodology.md (floor semantics in the trend chart; FFPI definition), data-dictionary.md (below flag on region points).
+- Validation: ESLint 0 errors; i18n parity 195 paths (was 191); trend-logic tests 8/8; data validation 19,716 checks 0 failures.
+- Static export built as CI does (NEXT_OUTPUT=export, NEXT_PUBLIC_BASE_PATH="") and served locally for browser QA.
+- Browser verification (dev + export builds, EN + zh-TW, desktop + 390px mobile): Africa curve visible alone and with others (pixel-measured in both builds); tooltips match trend.json exactly (2001 World 12.8%/Africa 21.4%, 2012 all four series, 2023 20.0%, 2024 20.2%); deselect/reselect/order changes keep exact hexes (#c05b3b africa, #8fa074 asia, #e0c48f world) and legend icons constant; y-axis reads 0/5/10/15/20/25% with nothing clipped; Europe dashed at the floor with "<2.5%"/"低於 2.5%" tooltips and the floor note visible in both languages; Ch4 FPI unchanged and healthy (gold line/markpoint/rust marker pixels identical to the previous fix; tooltip 2021 = 125.7); mobile: chips wrap, no horizontal overflow, VLM confirms no clipped elements; no page errors.
+- No files deleted. Local commit (no push, per rule).
+
+Stage Summary:
+- Africa: fixed by adapting the percent-view y-axis to visible series (was clipped by fixed max 14)
+- Europe 2.5%: verified as FAO's "<2.5%" reporting floor (OWID + SOFI 2026 + country-level pattern); carried as a data flag, rendered dashed with "<2.5%" labels and a floor note — no values invented or changed
+- Colors: one fixed region→color map behind curves, legend, chips and tooltips; colors no longer depend on selection or order
+- Ch4: plain-language FPI explainer + simplified title/subtitle + source, both languages
+- 17 files changed/added (2 new: trendChartLogic.ts, trend-logic.test.mjs); user to upload and let Actions redeploy
