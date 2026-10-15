@@ -107,3 +107,40 @@ Stage Summary:
 - Colors: one fixed region→color map behind curves, legend, chips and tooltips; colors no longer depend on selection or order
 - Ch4: plain-language FPI explainer + simplified title/subtitle + source, both languages
 - 17 files changed/added (2 new: trendChartLogic.ts, trend-logic.test.mjs); user to upload and let Actions redeploy
+
+---
+Task ID: 5
+Agent: Super Z (main agent)
+Task: Ch2 child-malnutrition source link, Ch6 broken action links, "contribute code" section rewrite
+
+Work Log:
+- Ch2 GRFC 2026 verification (before linking):
+  * Re-read sources.md evidence row (35.5M children acutely malnourished incl. ~10M severe, 2025, GRFC 2026 pub 2026-04-24) — originally verified in Phase 1 from press release + full PDF.
+  * Live re-verification 2026-10-16: GNAFC official page (fightfoodcrises.net/global-report-food-crises) loads with real hub content; GRFC 2026 joint launch press release (WFP, 2026-04-24) states verbatim "In 2025 alone, 35.5 million children were acutely malnourished, including nearly 10 million suffering from severe acute malnutrition"; cross-checked UN News, EU and PreventionWeb coverage. Reference year (2025), coverage (food-crisis contexts) and definition (child acute malnutrition — a nutrition outcome, not a food-access measure) all match the site copy; no copy change needed.
+  * Added popNoteSourceUrl (fightfoodcrises.net/global-report-food-crises — same URL the acute indicator card uses in the same chapter) to both dictionaries; Scale.tsx passes it to SourceNote → "GRFC 2026" now renders as a link (target _blank, rel noopener), styled like every other source note.
+- Ch6 broken links — each verified by opening actual page content (page extraction / real browser), never by HTTP status or search snippets alone:
+  * foodbanking.org/get-involved/ → confirmed site 404 ("Page not found | The Global FoodBanking Network"). Replacement: /global-reach/ ("Our Global Reach" + "Find a GFN Member" + 47 country member pages; linked from the homepage). Entry renamed "The Global FoodBanking Network — Our Global Reach" / note "Find a member food bank by country". Content-level verification succeeded via page extraction; interactive browser check was blocked by Cloudflare's bot wall in this environment (reported honestly, not claimed as verified).
+  * unep.org/act-now → confirmed site 404 ("Error 404 - Page not found" on unep.org). Replacement: UNEP story "Seven ways to cut your food waste and support the planet" (verified live, same institution, exactly the "everyday actions, officially curated" intent). Was miscategorized under volunteer → moved to the waste list per the user's categorization rule.
+  * fao.org/food-loss-and-food-waste-flw → confirmed site 404 (FAO 404 page). Replacement: FAO Policy Support theme page "Food Loss and Food Waste" (verified live; opens with exactly the "where loss happens along the chain" facts: 13.2% lost post-harvest before retail, 19% wasted at retail/food service/household). Title and note kept.
+  * www.sdgs.un.org/goals/goal2 → DNS failure (the "www" host does not exist — the "site can't be reached" the user saw). Fixed to https://sdgs.un.org/goals/goal2 and verified in a real browser (title "Goal 2 | Department of Economic and Social Affairs"; goal text "End hunger, achieve food security and improved nutrition and promote sustainable agriculture").
+  * Side effects: volunteer list now has 1 resource (correct, not padded); waste list has 3.
+  * Re-checked every other Ch6 link by content: OWID, FAO SOFI publication + newsroom, fightfoodcrises.net, WFP donate, ShareTheMeal, foodbanking.org home, UNICEF nutrition, UNEP FWI 2024 — all live with matching content. ipcinfo.org/famine-facts could NOT be re-checked from this environment (Cloudflare blocks both the headless browser and the reader); no user report of failure, so it was left unchanged and the limitation is flagged in sources.md.
+- "I want to contribute code" → "I want to share this site" rewrite (both languages):
+  * Removed all contributor recruitment (code/translations/data/chapters) and the hidden GitHub placeholder resource; removed the now-dead SITE_REPO_URL special-case from Action.tsx (the footer's conditional source-list link is kept intact); updated the site.ts comment.
+  * New copy encourages sharing the link, using charts in classes/talks/articles, and recommending the site where hunger misinformation spreads.
+  * License guidance added, matching the actual LICENSE (MIT covers code + documentation; datasets stay under their publishers' terms): cite original publishers for numbers, link back here for explanations/charts, third-party material keeps its own terms. No share buttons or trackers added; no submission/review/contact processes added.
+- Docs: sources.md action-resources section rewritten (broken→fixed mapping, verification method, ipcinfo caveat, Ch2 press-release verification note); header line notes 2026-10-16 re-verification.
+- Validation: ESLint 0 errors; i18n parity 196 paths (was 195, +popNoteSourceUrl); trend-logic tests 8/8; data validation 19,716 checks 0 failures.
+- Static export built exactly as CI (NEXT_OUTPUT=export, NEXT_PUBLIC_BASE_PATH="") and served locally for browser QA.
+- Browser verification (dev + export builds, EN + zh-TW, desktop 1280 + mobile 390):
+  * Ch2: popNote source renders as a link (href/text/target/rel verified; VLM confirms gold underline link styling, no clipping).
+  * Ch6: volunteer 1 link (global-reach), waste 3 links (FWI, Seven ways, FAO), advocate SDG 2 correct URL, share accordion opens with the new copy and zero resource items; all hrefs match the dictionaries exactly; interest labels updated in both languages.
+  * Mobile: no horizontal overflow; all buttons/links/notes within the 390px viewport; the 3-item waste list wraps without issues.
+  * Ch4 FPI chart untouched and healthy on the export build (gold line 318 px + rust marker pixels on the 390px canvas; explainer and source note present). No page/console errors (only the pre-known containLabel warning).
+- Local commit (no push, per rule).
+
+Stage Summary:
+- Ch2: the GRFC 2026 source is now a clickable official link (GNAFC report page); the data was re-verified against the 2026-04-24 joint press release — numbers, year, coverage and definition all confirmed, copy unchanged.
+- Ch6: three confirmed site-404s replaced with verified official pages (foodbanking global-reach, UNEP Seven ways — moved to waste, FAO policy-support FLW); the SDG 2 link was a wrong-host DNS error, fixed to sdgs.un.org; ipcinfo left as-is (verification blocked in this environment, no failure reported by the user).
+- "Contribute code" rewritten as "share this site" — sharing/introduction/attribution focus, license-aware, no contributor management.
+- 6 files modified, 0 added, 0 deleted. Deliverable: gfc-links-and-share.zip in download/.
