@@ -2,33 +2,40 @@
 
 // TrendChart — Chapter 5. Global undernourishment over time with two views:
 // share of population (%) vs number of people (millions), optional regional
-// comparison (share view only), and the newest SOFI 2026 vintage marked as an
+// comparison (share view), and the newest SOFI 2026 vintage marked as an
 // isolated point (never spliced into the OWID-republished series).
+//
+// Design notes:
+// - Every series carries a stable `id` and an explicit top-level `color`
+//   resolved from the fixed region→color map in src/lib/trendChartLogic.ts.
+//   Curves, data points, legend icons, chip dots and tooltip markers all
+//   share that one map, so colors can never depend on the selection set,
+//   its order, or the language.
+// - The percent view's y-axis ceiling adapts to the visible series (world +
+//   selected regions) so high-prevalence regions such as Africa (15.5–22.1%)
+//   are never clipped; it is always a multiple of 5 to keep clean ticks.
+// - A region whose every point is flagged `below` (FAO "<2.5%" reporting
+//   floor — Europe in this series) is drawn dashed and labelled "<2.5%" in
+//   tooltips: the flat line marks the measurement floor, not an exact value.
 
 import { useMemo, useState } from "react";
 import { BaseChart, THEME, baseTooltip, type ChartOption } from "./BaseChart";
 import { useI18n } from "@/i18n";
 import { usePrefersReducedMotion } from "@/lib/useLazyData";
 import { formatPeople } from "@/lib/format";
+import {
+  REGION_KEYS,
+  REGION_COLORS,
+  WORLD_COLOR,
+  nicePercentMax,
+  isThresholdFloorSeries,
+  seriesColor,
+  type RegionKey,
+  type TrendData,
+  type TrendPoint,
+} from "@/lib/trendChartLogic";
 
-export type Point = { year: number; value: number };
-export type TrendData = {
-  worldPercent: Point[];
-  worldNumber: Point[];
-  sofi2026: { percent: Point[]; number: Point[] };
-  regions: Record<"africa" | "asia" | "americas" | "europe" | "oceania", Point[]>;
-};
-
-const REGION_KEYS = ["africa", "asia", "americas", "europe", "oceania"] as const;
-type RegionKey = (typeof REGION_KEYS)[number];
-
-const REGION_COLORS: Record<RegionKey, string> = {
-  africa: "#c05b3b",
-  asia: "#8fa074",
-  americas: "#ce8b54",
-  europe: "#b4c9be",
-  oceania: "#6e7f74",
-};
+export type { TrendData, TrendPoint };
 
 export function TrendChart({ data }: { data: TrendData }) {
   const { t, locale } = useI18n();
@@ -54,7 +61,9 @@ export function TrendChart({ data }: { data: TrendData }) {
     const series: ChartOption["series"] = [
       {
         type: "line",
+        id: "world",
         name: t.ch5.regionWorld,
+        color: WORLD_COLOR,
         data: (isPercent ? data.worldPercent : data.worldNumber).map((p) => [
           p.year,
           p.value,
@@ -62,8 +71,8 @@ export function TrendChart({ data }: { data: TrendData }) {
         symbol: "circle",
         symbolSize: 5,
         showSymbol: false,
-        lineStyle: { color: THEME.goldBright, width: 3 },
-        itemStyle: { color: THEME.goldBright },
+        lineStyle: { color: WORLD_COLOR, width: 3 },
+        itemStyle: { color: WORLD_COLOR },
         emphasis: { focus: "series" },
         z: 10,
       },
@@ -72,12 +81,22 @@ export function TrendChart({ data }: { data: TrendData }) {
     if (isPercent) {
       for (const key of REGION_KEYS) {
         if (!regionsOn.has(key)) continue;
+        const pts = data.regions[key];
+        const floorSeries = isThresholdFloorSeries(pts);
         series.push({
           type: "line",
+          id: key,
           name: regionLabels[key],
-          data: data.regions[key].map((p) => [p.year, p.value]),
+          color: REGION_COLORS[key],
+          data: pts.map((p) => [p.year, p.value]),
           symbol: "none",
-          lineStyle: { color: REGION_COLORS[key], width: 1.8, opacity: 0.9 },
+          lineStyle: {
+            color: REGION_COLORS[key],
+            width: 1.8,
+            opacity: 0.9,
+            ...(floorSeries ? { type: "dashed" as const } : {}),
+          },
+          itemStyle: { color: REGION_COLORS[key] },
           emphasis: { focus: "series" },
         });
       }
@@ -87,11 +106,13 @@ export function TrendChart({ data }: { data: TrendData }) {
     // isolated point, deliberately not connected to the series above.
     series.push({
       type: "scatter",
+      id: "sofi",
       name: "SOFI 2026",
+      color: WORLD_COLOR,
       data: sofiPoint.map((p) => [p.year, p.value]),
       symbolSize: 11,
       itemStyle: {
-        color: THEME.goldBright,
+        color: WORLD_COLOR,
         borderColor: THEME.ink,
         borderWidth: 2,
       },
@@ -108,6 +129,18 @@ export function TrendChart({ data }: { data: TrendData }) {
       z: 12,
     });
 
+    // Percent-view ceiling: must clear every visible series (world +
+    // selected regions); a multiple of 5 keeps the 5-point ticks clean.
+    const visibleValues = isPercent
+      ? [
+          ...data.worldPercent.map((p) => p.value),
+          ...REGION_KEYS.filter((k) => regionsOn.has(k)).flatMap((k) =>
+            data.regions[k].map((p) => p.value),
+          ),
+        ]
+      : [];
+    const yMax = isPercent ? nicePercentMax(visibleValues) : 900;
+
     return {
       backgroundColor: "transparent",
       grid: { left: 8, right: 16, top: 34, bottom: 56, containLabel: true },
@@ -118,6 +151,9 @@ export function TrendChart({ data }: { data: TrendData }) {
         icon: "roundRect",
         itemWidth: 14,
         itemHeight: 3,
+        // purely informational — selection state lives in the chips above
+        // the chart, so legend clicks must not desync from them
+        selectedMode: false,
         textStyle: { color: THEME.creamDim, fontFamily: THEME.fontUi, fontSize: 11 },
         inactiveColor: "#4a5a52",
       },
@@ -127,6 +163,7 @@ export function TrendChart({ data }: { data: TrendData }) {
         axisPointer: { type: "line", lineStyle: { color: "rgba(199,163,108,0.4)" } },
         formatter: (params: unknown) => {
           const list = params as Array<{
+            seriesId?: string;
             seriesName: string;
             value: [number, number];
             marker: string;
@@ -136,10 +173,31 @@ export function TrendChart({ data }: { data: TrendData }) {
           const rows = list
             .filter((s) => s.value != null && !Number.isNaN(s.value[1]))
             .map((s) => {
+              // resolve the source point (by stable series id) to read the
+              // FAO reporting-floor flag carried in the data file
+              const sid = s.seriesId ?? "";
+              const src: TrendPoint[] | undefined =
+                sid === "world"
+                  ? isPercent
+                    ? data.worldPercent
+                    : data.worldNumber
+                  : sid && (REGION_KEYS as string[]).includes(sid)
+                    ? data.regions[sid as RegionKey]
+                    : undefined;
+              const pt = src?.find((p) => p.year === year);
+              const floored = pt?.below === true;
               const v = isPercent
-                ? `${s.value[1].toFixed(1)}%`
+                ? floored
+                  ? t.ch5.floorLabel
+                  : `${s.value[1].toFixed(1)}%`
                 : formatPeople(s.value[1], t.common, locale);
-              return `${s.marker} ${s.seriesName}: <b style="color:${THEME.goldBright}">${v}</b>`;
+              const rowColor =
+                sid === "world" || sid === "sofi"
+                  ? WORLD_COLOR
+                  : sid && (REGION_KEYS as string[]).includes(sid)
+                    ? REGION_COLORS[sid as RegionKey]
+                    : THEME.goldBright;
+              return `${s.marker} ${s.seriesName}: <b style="color:${rowColor}">${v}</b>`;
             });
           return `<b>${year}</b><br/>${rows.join("<br/>")}`;
         },
@@ -162,7 +220,8 @@ export function TrendChart({ data }: { data: TrendData }) {
       yAxis: {
         type: "value",
         min: 0,
-        max: isPercent ? 14 : 900,
+        max: yMax,
+        ...(isPercent ? { interval: 5 } : {}),
         axisLabel: {
           formatter: (v: number) => (isPercent ? `${v}%` : `${v}`),
           color: THEME.creamDim,
@@ -240,6 +299,11 @@ export function TrendChart({ data }: { data: TrendData }) {
               aria-pressed={regionsOn.has(key)}
               onClick={() => toggleRegion(key)}
             >
+              <span
+                className="chip__dot"
+                style={{ background: seriesColor(key) }}
+                aria-hidden="true"
+              />
               {regionLabels[key]}
             </button>
           ))}

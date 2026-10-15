@@ -160,7 +160,15 @@ def build_trend():
             for r in rows
             if r["Entity"] == entity and r.get(col)
         ]
-        return [{"year": y, "value": r1(v)} for y, v in sorted(pts)]
+        # FAO convention (documented in the country-level file, docs/methodology.md
+        # and OWID): prevalence below 2.5% is reported as "<2.5%", exported as the
+        # numeric floor 2.5. Flag those points so the chart can present the
+        # reporting floor honestly (dashed line + "<2.5%" label) instead of an
+        # apparently exact 2.5% every year. Applies to the Europe (FAO) aggregate.
+        return [
+            {"year": y, "value": r1(v), **({"below": True} if v == 2.5 else {})}
+            for y, v in sorted(pts)
+        ]
 
     regions = {
         "africa": "Africa (FAO)",
@@ -188,6 +196,11 @@ def build_trend():
         "license": "CC BY 4.0 (OWID); underlying data (c) FAO",
         "referencePeriod": "2000-2024",
         "retrieved": RETRIEVED,
+        "note": (
+            "FAO reports '<2.5%' for prevalence below 2.5% (measurement floor); "
+            "such points carry below=true. The Europe (FAO) aggregate sits "
+            "below the floor in every year of this series."
+        ),
     }
     meta_num = {
         "publisher": "FAO (via World Bank WDI)",

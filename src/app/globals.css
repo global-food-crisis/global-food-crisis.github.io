@@ -452,6 +452,28 @@ body {
   color: var(--gold-bright);
 }
 
+/* small fixed-color dot inside region selection chips (color always matches
+   the series color defined in src/lib/trendChartLogic.ts) */
+.chip__dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  margin-right: 0.45rem;
+  vertical-align: 0.06em;
+  box-shadow: 0 0 0 1px rgba(16, 26, 24, 0.85);
+}
+
+/* short plain-language explainer rendered before a chart frame */
+.chart-explainer {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--cream-dim);
+  margin: 0 0 0.9rem;
+  max-width: 68ch;
+}
+
 /* ------------------------------------------------------------ tables */
 
 .data-table-wrap {

@@ -25,6 +25,8 @@ type Cause = {
   case2Body?: string;
   case2Source?: string;
   chartTitle?: string;
+  chartSubtitle?: string;
+  chartExplainer?: string;
   chartNote?: string;
   caveat: string;
   sources: Array<{ name: string; url: string }>;
@@ -109,7 +111,13 @@ export function Causes() {
                 <div className="chart-frame">
                   <div className="chart-frame__head">
                     <h3 className="chart-title">{cause.chartTitle}</h3>
+                    {cause.chartSubtitle && (
+                      <p className="chart-subtitle">{cause.chartSubtitle}</p>
+                    )}
                   </div>
+                  {cause.chartExplainer && (
+                    <p className="chart-explainer">{cause.chartExplainer}</p>
+                  )}
                   {fpi.status === "ready" && fpi.data ? (
                     <PriceIndexChart series={fpi.data.series} />
                   ) : fpi.status === "error" ? (
@@ -129,6 +137,11 @@ export function Causes() {
                     </div>
                   )}
                   <p className="chart-note">{cause.chartNote}</p>
+                  <SourceNote
+                    name={t.ch4.fpiSourceName}
+                    url={t.ch4.fpiSourceUrl}
+                    year={2025}
+                  />
                 </div>
               )}
 

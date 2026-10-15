@@ -204,6 +204,8 @@ export const en = {
     ],
   },
   ch4: {
+    fpiSourceName: "FAO — World Food Situation, Food Price Index",
+    fpiSourceUrl: "https://www.fao.org/worldfoodsituation/FoodPricesIndex/en",
     kicker: "Chapter 4 — The Causes",
     title: "Why does hunger persist?",
     lede:
@@ -285,9 +287,12 @@ export const en = {
           "In 2025, economic shocks were the primary driver of acute food insecurity in 12 countries, home to 29.8 million people — down from their 2022 peak, but still reported as an additional driver in 31 countries. Currency depreciation, debt distress and high import bills price food out of reach long before any shortage appears.",
         body2:
           "World food prices have swung violently twice in a generation. The 2007–08 crisis put the FAO Food Price Index at a then-record 117.7 (annual average) and triggered unrest in dozens of countries. The 2022 peak — an annual average of 144.5, monthly 160.3 in March 2022, the highest since the index began in 1990 — followed Russia's invasion of Ukraine, a major grain and fertilizer exporter. Countries that import most of their food, and households that spend most of their income on it, absorb those shocks first and recover last.",
-        chartTitle: "FAO Food Price Index, annual average (2014–2016 = 100)",
+        chartTitle: "FAO Food Price Index",
+        chartSubtitle: "Annual averages · index points, 2014–2016 average = 100",
+        chartExplainer:
+          "The FAO Food Price Index tracks the international prices of a basket of globally traded food commodities — cereals, vegetable oils, dairy, meat and sugar, weighted by their export shares. It is not a measure of supermarket prices or of what any household spends on food, but international price swings do reach local markets through trade, exchange rates and supply chains. The 2014–2016 average is set to 100, so an index of 125 sits about 25% above that baseline — not 25% higher than the previous year.",
         chartNote:
-          "The 2022 annual value of 144.5 is the highest in the index's modern series; monthly values peaked at 160.3 in March 2022. After easing through 2023–24, the index rose again to 127.2 in 2025 and averaged 136.0 in September 2026.",
+          "Each point is the average of that year’s twelve monthly values — so the 2022 annual value of 144.5 is the highest annual average of the modern series, while the monthly index peaked higher still at 160.3 in March 2022. After easing through 2023–24, the index rose again to 127.2 in 2025 and averaged 136.0 in September 2026.",
         caseTitle: "The quiet driver: shrinking aid",
         caseBody:
           "Just as needs peaked, support contracted. Net official development assistance from major donors is projected to fall to its lowest level since 2014, humanitarian aid is projected down by roughly 40% between 2024 and 2026, and food aid specifically by about 44.5%. Emergency food security monitoring is being cut in the same countries where hunger is growing — which is also why some recent declines in measured hunger partly reflect lost data, not only relief.",
@@ -316,6 +321,9 @@ export const en = {
     regionEurope: "Europe",
     regionOceania: "Oceania",
     regionHint: "Select regions to compare (share view)",
+    floorLabel: "<2.5%",
+    floorNote:
+      "Europe's flat line: FAO reports any prevalence below 2.5% as “<2.5%” — the measurement floor — so the dashed European line marks that reporting floor, not an exact 2.5% every year.",
     sofiMarker: "SOFI 2026: 7.8% (2025)",
     sofiMarkerNumber: "SOFI 2026: 645 million (2025)",
     numberSourceNote:

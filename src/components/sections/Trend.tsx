@@ -85,7 +85,7 @@ export function Trend() {
               statusBox(t.common.loadingChart, trend.retry, trend.ref)
             )}
             <p className="chart-note">
-              {t.ch5.vintageNote} {t.ch5.numberSourceNote}
+              {t.ch5.vintageNote} {t.ch5.floorNote} {t.ch5.numberSourceNote}
             </p>
             <SourceNote
               name="FAO · Our World in Data"

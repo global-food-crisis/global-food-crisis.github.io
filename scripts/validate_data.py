@@ -93,10 +93,26 @@ def validate_trend():
     for name, pts in regions.items():
         check(len(pts) >= 20, f"trend.json: region {name} too short ({len(pts)})")
         check(all(0 < p["value"] <= 100 for p in pts), f"trend.json: region {name} value range")
+        # FAO reporting-floor flags: below=true only on the 2.5 floor value
+        flagged = [p for p in pts if p.get("below")]
+        check(all(p["value"] == 2.5 for p in flagged),
+              f"trend.json: region {name} below flag on value != 2.5")
+        if name == "europe":
+            check(len(flagged) == len(pts) and len(pts) > 0,
+                  "trend.json: europe should be at the FAO floor (<2.5%) in every year")
+        else:
+            check(not flagged,
+                  f"trend.json: region {name} unexpectedly at the 2.5 floor")
+    # africa must stay above the old (clipping) axis ceiling: regression guard
+    # for the Chapter 5 fix that made the y-axis adapt to visible series
+    africa = d["regions"]["africa"]
+    check(min(p["value"] for p in africa) > 14,
+          "trend.json: africa values must exceed the former fixed y-axis max (14)")
     # latest world value consistency with SOFI reporting
     check(abs(wp[-1]["value"] - 8.2) < 0.01, "trend.json: world 2024 percent changed")
     print(f"  trend.json: {len(wp)} world percent points ({wp[0]['year']}-{wp[-1]['year']}), "
-          f"{len(wn)} number points, {len(regions)} regions")
+          f"{len(wn)} number points, {len(regions)} regions "
+          f"(europe at '<2.5%' floor in all {len(regions['europe'])} years)")
 
 
 def validate_fpi():
