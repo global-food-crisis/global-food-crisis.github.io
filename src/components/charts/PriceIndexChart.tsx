@@ -16,7 +16,12 @@ export function PriceIndexChart({ series }: { series: FpiPoint[] }) {
   const reduced = usePrefersReducedMotion();
 
   const option = useMemo<ChartOption>(() => {
-    const peak = series.reduce((a, b) => (b.value > a.value ? b : a));
+    // Safe on an empty series: `reduce` without an initial value would throw
+    // on `[]`, so peak becomes null and the markPoint is simply omitted.
+    const peak =
+      series.length > 0
+        ? series.reduce((a, b) => (b.value > a.value ? b : a))
+        : null;
     return {
       backgroundColor: "transparent",
       grid: { left: 8, right: 18, top: 26, bottom: 8, containLabel: true },
@@ -25,20 +30,28 @@ export function PriceIndexChart({ series }: { series: FpiPoint[] }) {
         trigger: "axis",
         axisPointer: { type: "line", lineStyle: { color: "rgba(199,163,108,0.4)" } },
         formatter: (params: unknown) => {
-          const p = (params as Array<{ value: [number, number] }>)[0];
+          const p = (params as Array<{ value: [string, number] }>)[0];
           if (!p) return "";
           return `<b>${p.value[0]}</b><br/>${p.value[1].toFixed(1)}`;
         },
       },
+      // Category axis: values must be strings. On a category axis ECharts 6
+      // resolves each [x, y] pair's x through OrdinalMeta.getOrdinal — a
+      // Map keyed by the raw value — so a numeric year (2022) never matches
+      // a string category ("2022") and is instead treated as an ordinal
+      // INDEX, placing the point far outside the grid. Hence the strings.
       xAxis: {
         type: "category",
-        data: series.map((d) => d.year),
+        data: series.map((d) => String(d.year)),
         boundaryGap: false,
         axisLabel: {
           color: THEME.creamDim,
           fontFamily: THEME.fontUi,
           fontSize: 11,
-          formatter: (v: number) => (v % 5 === 0 ? String(v) : ""),
+          formatter: (v: string) => {
+            const year = Number(v);
+            return Number.isFinite(year) && year % 5 === 0 ? v : "";
+          },
         },
         axisLine: { lineStyle: { color: THEME.line } },
         axisTick: { show: false },
@@ -57,7 +70,7 @@ export function PriceIndexChart({ series }: { series: FpiPoint[] }) {
       series: [
         {
           type: "line",
-          data: series.map((d) => [d.year, d.value]),
+          data: series.map((d) => [String(d.year), d.value]),
           symbol: "circle",
           symbolSize: 4,
           showSymbol: false,
@@ -82,20 +95,28 @@ export function PriceIndexChart({ series }: { series: FpiPoint[] }) {
             label: { show: false },
             data: [{ yAxis: 100 }],
           },
-          markPoint: {
-            symbol: "circle",
-            symbolSize: 9,
-            itemStyle: { color: THEME.map6 },
-            label: {
-              show: true,
-              position: "top",
-              color: THEME.goldBright,
-              fontFamily: THEME.fontUi,
-              fontSize: 11,
-              formatter: () => `${peak.year}: ${peak.value.toFixed(1)}`,
-            },
-            data: [{ coord: [peak.year, peak.value] }],
-          },
+          ...(peak
+            ? {
+                markPoint: {
+                  symbol: "circle",
+                  symbolSize: 9,
+                  // THEME.mapScale[5] is the site's highest-intensity rust
+                  // (#c05b3b) — the intended accent. (The original
+                  // `THEME.map6` referenced a property that does not exist,
+                  // silently falling back to ECharts' default blue.)
+                  itemStyle: { color: THEME.mapScale[5] },
+                  label: {
+                    show: true,
+                    position: "top",
+                    color: THEME.goldBright,
+                    fontFamily: THEME.fontUi,
+                    fontSize: 11,
+                    formatter: () => `${peak.year}: ${peak.value.toFixed(1)}`,
+                  },
+                  data: [{ coord: [String(peak.year), peak.value] }],
+                },
+              }
+            : {}),
           z: 5,
         },
       ],
