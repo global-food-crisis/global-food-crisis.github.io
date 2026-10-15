@@ -53,9 +53,28 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Keep <html lang> and the document title in sync with the locale.
+  // Guard: Next.js re-commits the build-time (English) <title> when its
+  // metadata hydration settles — that happens AFTER this effect has already
+  // restored a stored zh-TW preference, silently reverting the localized
+  // tab title. A MutationObserver re-asserts the locale title in the same
+  // microtask checkpoint, so the clobber never becomes visible.
   useEffect(() => {
     document.documentElement.lang = locale;
-    document.title = DICTS[locale].meta.siteTitle;
+    const localeTitle = DICTS[locale].meta.siteTitle;
+    document.title = localeTitle;
+
+    const titleEl = document.querySelector("title");
+    if (!titleEl) return;
+    const enforce = () => {
+      if (document.title !== localeTitle) document.title = localeTitle;
+    };
+    const observer = new MutationObserver(enforce);
+    observer.observe(titleEl, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
+    return () => observer.disconnect();
   }, [locale]);
 
   const setLocale = useCallback((next: Locale) => {
