@@ -604,6 +604,30 @@ body {
   touch-action: pan-y;
 }
 
+/* Persistent interaction affordance line (tap / hover guidance). Visible
+   copy in the page language — never hover-only, never a popup — in the gold
+   accent so it reads as "this responds" while staying quiet next to the
+   chart title and note. */
+.chart-hint {
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--gold);
+  margin: 0.45rem 0 0;
+}
+
+.chart-frame__head .chart-hint {
+  margin: 0.3rem 0 0;
+}
+
+/* Touch scrolling: let the browser own vertical pans that start on a chart
+   canvas, so a swipe over a chart still scrolls the page. Taps (tooltips,
+   selection) and horizontal drags (dataZoom slider / inside pan) keep
+   working through ECharts. */
+.chart-frame canvas {
+  touch-action: pan-y;
+}
+
 .chart-note {
   font-family: var(--font-ui);
   font-size: 0.78rem;
