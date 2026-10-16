@@ -5,7 +5,7 @@
 // country names (Intl.DisplayNames), selection highlight, and an accessible
 // table alternative rendered by the Geography section.
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as echarts from "echarts/core";
 import { BaseChart, THEME, baseTooltip, type ChartOption } from "./BaseChart";
 import { useI18n } from "@/i18n";
@@ -65,6 +65,7 @@ export function WorldMap({
 }) {
   const { t, locale, countryName } = useI18n();
   const reduced = usePrefersReducedMotion();
+  const chartRef = useRef<echarts.ECharts | null>(null);
 
   // Register the projection data once per GeoJSON payload. Idempotent.
   useMemo(() => {
@@ -76,6 +77,18 @@ export function WorldMap({
     [countries],
   );
 
+  const featureIndex = useMemo(() => {
+    const m = new Map<string, number>();
+    geo.features.forEach((f, i) => m.set(f.properties.code, i));
+    return m;
+  }, [geo]);
+
+  // Items are deliberately free of selection styling: driving the highlight
+  // through ECharts' own select action (below) keeps the option object
+  // stable across selections, so a tap that selects a country does not
+  // rebuild the option and wipe the tooltip that same tap just opened
+  // (touch has no mousemove to bring it back). Small countries without a
+  // drawn shape (Barbados etc.) simply have no feature index to select.
   const items = useMemo<MapItem[]>(() => {
     return geo.features.map((f) => {
       const rec = byCode.get(f.properties.code);
@@ -93,18 +106,14 @@ export function WorldMap({
           itemStyle: { areaColor: THEME.mapNone },
         };
       }
-      const selected = selectedCode === rec.code;
       return {
         ...base,
         value: rec.value,
         below: rec.below,
         year: rec.year,
-        itemStyle: selected
-          ? { borderColor: THEME.goldBright, borderWidth: 2, areaColor: undefined }
-          : undefined,
       };
     });
-  }, [geo, byCode, selectedCode]);
+  }, [geo, byCode]);
 
   const option = useMemo<ChartOption>(() => {
     return {
@@ -157,16 +166,45 @@ export function WorldMap({
             label: { show: false },
             itemStyle: { areaColor: "#2e463c" },
           },
-          select: { disabled: true },
+          // Selection highlight is driven by select/unselect actions (see
+          // the effect below) instead of a rebuilt option, so tapping a
+          // country keeps its tooltip open. The gold border overlays the
+          // choropleth color without replacing it.
+          select: {
+            label: { show: false },
+            itemStyle: { borderColor: THEME.goldBright, borderWidth: 2 },
+          },
         },
       ],
     };
   }, [items, byCode, t, locale, countryName]);
 
-  // clear ECharts' internal hover/selection when the panel is cleared
+  // Apply the selection highlight via ECharts actions. Re-applied when the
+  // option itself changes (locale switch re-runs setOption, which resets
+  // select state) and guarded against a disposed chart during teardown.
+  const prevIdx = useRef<number | null>(null);
   useEffect(() => {
-    // option rebuild (via selectedCode) already handles the visual state
-  }, [selectedCode]);
+    const chart = chartRef.current;
+    if (!chart) return;
+    const idx =
+      selectedCode != null ? featureIndex.get(selectedCode) : undefined;
+    const next = typeof idx === "number" ? idx : null;
+    try {
+      if (prevIdx.current != null && prevIdx.current !== next) {
+        chart.dispatchAction({
+          type: "unselect",
+          seriesIndex: 0,
+          dataIndex: prevIdx.current,
+        });
+      }
+      if (next != null) {
+        chart.dispatchAction({ type: "select", seriesIndex: 0, dataIndex: next });
+      }
+    } catch {
+      /* chart already disposed during teardown */
+    }
+    prevIdx.current = next;
+  }, [selectedCode, featureIndex, option]);
 
   return (
     <BaseChart
@@ -174,6 +212,9 @@ export function WorldMap({
       ariaLabel={`${t.ch3.mapTitle}. ${t.ch3.legendTitle}. ${t.common.chartAriaFallback}`}
       animation={!reduced}
       style={{ height: "clamp(420px, 62vh, 620px)", width: "100%" }}
+      onInit={(chart) => {
+        chartRef.current = chart;
+      }}
       events={{
         click: (params) => {
           const d = (params as { data?: MapItem }).data;
