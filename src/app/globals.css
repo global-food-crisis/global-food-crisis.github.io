@@ -61,6 +61,15 @@
 
 html {
   scroll-behavior: smooth;
+  /* in-page anchors land clear of the fixed header (55px desktop) */
+  scroll-padding-top: 4.5rem;
+}
+
+@media (max-width: 900px) {
+  html {
+    /* mobile header is two rows (~90px) — give anchors extra clearance */
+    scroll-padding-top: 7rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -251,6 +260,18 @@ body {
   color: var(--gold);
 }
 
+/* ---------------------------------------------------------- chapter nav */
+
+/* Desktop: the wrapper generates no box, so .chapter-nav participates in
+   .site-header__inner exactly as before (single row, pixel-identical). */
+.chapter-nav-row {
+  display: contents;
+}
+
+.nav-more {
+  display: none;
+}
+
 .chapter-nav {
   display: flex;
   gap: 0.15rem;
@@ -285,6 +306,109 @@ body {
 .chapter-nav a[aria-current="true"] {
   color: var(--gold-bright);
   background: rgba(199, 163, 108, 0.14);
+}
+
+/* Mobile header (<= 900px): the bar wraps into two rows —
+   row 1: wordmark + language switch; row 2: the chapter nav as a
+   full-width horizontal scroller with a chevron button and edge fades,
+   so all six chapters are discoverable and operable on phones. */
+@media (max-width: 900px) {
+  .site-header__inner {
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
+  }
+
+  .wordmark {
+    flex: none; /* keep one line — do not let it shrink into a 3-line wrap */
+  }
+
+  .lang-switch {
+    margin-inline-start: auto; /* right-align on row 1 */
+  }
+
+  .chapter-nav-row {
+    display: flex;
+    align-items: center;
+    order: 3;
+    flex-basis: 100%;
+    min-width: 0;
+    position: relative;
+    gap: 0.5rem;
+  }
+
+  .chapter-nav {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-inline-start: 0;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chapter-nav a {
+    scroll-snap-align: start;
+  }
+
+  .nav-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    position: relative;
+    z-index: 2;
+    width: 2.1rem;
+    height: 2.1rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--ink-2);
+    color: var(--gold);
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .nav-more:hover {
+    color: var(--gold-bright);
+    border-color: var(--line-strong);
+  }
+
+  .nav-more:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  /* edge fades — visual hint that the nav continues past the visible edge.
+     Hidden before hydration too: no data attributes are set yet, which maps
+     to the initial state (left fade off, right fade on). */
+  .chapter-nav-row::before,
+  .chapter-nav-row::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1.7rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1;
+  }
+
+  .chapter-nav-row::before {
+    left: 0;
+    background: linear-gradient(90deg, rgba(16, 26, 24, 0.92), rgba(16, 26, 24, 0));
+  }
+
+  .chapter-nav-row::after {
+    right: 2.6rem; /* stop just before the chevron */
+    background: linear-gradient(270deg, rgba(16, 26, 24, 0.92), rgba(16, 26, 24, 0));
+  }
+
+  .chapter-nav-row[data-at-start="false"]::before {
+    opacity: 1;
+  }
+
+  .chapter-nav-row:not([data-at-end="true"])::after {
+    opacity: 1;
+  }
 }
 
 /* -------------------------------------------------------- language UI */
@@ -667,6 +791,20 @@ body {
   inset: 0;
   pointer-events: none;
   opacity: 0.5;
+}
+
+/* Hero content must clear the fixed header. Desktop header is 55px, so the
+   previous inline 4.5rem (72px) is preserved; on mobile the header is two
+   rows (~90px), so the opening kicker gets extra top padding. */
+.hero__shell {
+  width: 100%;
+  padding-top: 4.5rem;
+}
+
+@media (max-width: 900px) {
+  .hero__shell {
+    padding-top: 7.2rem;
+  }
 }
 
 .hero-title {
