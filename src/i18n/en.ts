@@ -26,6 +26,7 @@ export const en = {
     langOther: "繁體中文",
     langSwitchAria: "Switch language",
     navAria: "Chapter navigation",
+    moreChapters: "Show more chapters",
   },
   common: {
     sourceLabel: "Source",
