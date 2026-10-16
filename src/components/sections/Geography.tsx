@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n";
 import { useLazyJson } from "@/lib/useLazyData";
 import { Reveal } from "../Reveal";
 import { SourceNote } from "../SourceNote";
+import { ChartHint } from "../ChartHint";
 import {
   WorldMap,
   MAP_BREAKS,
@@ -102,10 +103,17 @@ export function Geography() {
         </Reveal>
 
         <Reveal>
-          <div className="chart-frame" style={{ marginTop: "2.4rem" }}>
+          <div style={{ marginTop: "2.4rem" }}>
+            <ChartHint template={t.ch3.chartsIntro} />
+          </div>
+        </Reveal>
+
+        <Reveal>
+          <div className="chart-frame" style={{ marginTop: "1.1rem" }}>
             <div className="chart-frame__head">
               <h3 className="chart-title">{t.ch3.mapTitle}</h3>
               <p className="chart-subtitle">{t.ch3.mapSubtitle}</p>
+              <ChartHint template={t.ch3.mapHint} />
             </div>
 
             <div className="map-controls">
