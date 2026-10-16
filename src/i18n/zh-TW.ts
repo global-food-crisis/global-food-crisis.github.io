@@ -19,6 +19,7 @@ export const zhTW: Dictionary = {
     langOther: "English",
     langSwitchAria: "切換語言",
     navAria: "章節導覽",
+    moreChapters: "更多章節",
   },
   common: {
     sourceLabel: "資料來源",
