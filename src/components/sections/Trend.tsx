@@ -10,6 +10,7 @@ import { useLazyJson } from "@/lib/useLazyData";
 import { assetUrl } from "@/lib/basePath";
 import { Reveal } from "../Reveal";
 import { SourceNote } from "../SourceNote";
+import { ChartHint } from "../ChartHint";
 import { TrendChart, type TrendData } from "../charts/TrendChart";
 import { AcuteChart, type AcutePoint } from "../charts/AcuteChart";
 
@@ -68,6 +69,7 @@ export function Trend() {
           <div className="chart-frame" style={{ marginTop: "2.4rem" }}>
             <div className="chart-frame__head">
               <h3 className="chart-title">{t.ch5.chartTitle}</h3>
+              <ChartHint template={t.ch5.trendHint} />
             </div>
             {trend.status === "ready" && trend.data ? (
               <TrendChart data={trend.data} />
@@ -138,6 +140,7 @@ export function Trend() {
             <div className="chart-frame" style={{ marginTop: "0.8rem" }}>
               <div className="chart-frame__head">
                 <h3 className="chart-title">{t.ch5.acuteChartTitle}</h3>
+                <ChartHint template={t.ch5.acuteHint} />
               </div>
               {acute.status === "ready" && acute.data ? (
                 <AcuteChart series={acute.data.series} />
