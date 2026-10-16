@@ -29,7 +29,9 @@ export function Hero() {
           </svg>
         </div>
 
-        <div className="shell" style={{ width: "100%", paddingTop: "4.5rem" }}>
+        {/* padding-top is set in globals.css (.hero > .shell) so it can clear
+            the fixed header per breakpoint (mobile header is two rows tall). */}
+        <div className="shell hero__shell">
           <Reveal>
             <p className="kicker hero-kicker">{t.ch1.kicker}</p>
           </Reveal>
