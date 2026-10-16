@@ -67,6 +67,9 @@ export function baseTooltip(): echarts.TooltipComponentOption {
     borderColor: "rgba(199,163,108,0.45)",
     borderWidth: 1,
     padding: [10, 14],
+    // confine keeps the tooltip inside the chart canvas, so on phones it
+    // can never be clipped by the viewport edge (canvas ≤ viewport width).
+    confine: true,
     textStyle: {
       color: THEME.cream,
       fontFamily: THEME.fontUi,
@@ -83,6 +86,7 @@ export function BaseChart({
   className,
   style,
   events,
+  onInit,
 }: {
   option: ChartOption;
   ariaLabel: string;
@@ -90,18 +94,23 @@ export function BaseChart({
   className?: string;
   style?: React.CSSProperties;
   events?: Record<string, (params: unknown) => void>;
+  /** Receives the ECharts instance once, after init and first setOption —
+   lets parents drive actions (e.g. map select) without rebuilding options. */
+  onInit?: (chart: echarts.ECharts) => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
   const optionRef = useRef(option);
   const animationRef = useRef(animation);
   const eventsRef = useRef(events);
+  const onInitRef = useRef(onInit);
 
   // keep refs in sync with the latest props (after render, before use)
   useEffect(() => {
     optionRef.current = option;
     animationRef.current = animation;
     eventsRef.current = events;
+    onInitRef.current = onInit;
   });
 
   useEffect(() => {
@@ -114,6 +123,28 @@ export function BaseChart({
       chart.setOption({ ...optionRef.current, animation: animationRef.current }, { notMerge: true });
     };
     apply();
+    onInitRef.current?.(chart);
+
+    // Dismiss affordance for touch (and mouse): a tap/click on blank canvas
+    // that is OUTSIDE the grid (chart margins, or the ocean on the map)
+    // closes any open tooltip, so tooltips can always be put away. Clicks
+    // that hit an element — or land inside a grid, where an axis-trigger
+    // tooltip should follow/switch instead — are left to ECharts.
+    const zr = chart.getZr();
+    const onBlankTap = (e: { target?: unknown; offsetX?: number; offsetY?: number }) => {
+      if (e.target != null) return;
+      const { offsetX, offsetY } = e;
+      if (typeof offsetX !== "number" || typeof offsetY !== "number") return;
+      let insideGrid = false;
+      try {
+        // containPixel("grid", ...) is false/throwing on gridless charts (map)
+        insideGrid = chart.containPixel("grid", [offsetX, offsetY]);
+      } catch {
+        insideGrid = false;
+      }
+      if (!insideGrid) chart.dispatchAction({ type: "hideTip" });
+    };
+    zr.on("click", onBlankTap);
 
     // re-render once web fonts finish loading (canvas text)
     const fontsReady = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
@@ -130,6 +161,7 @@ export function BaseChart({
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", resize);
+      zr.off("click", onBlankTap);
       chart.dispose();
       chartRef.current = null;
     };
