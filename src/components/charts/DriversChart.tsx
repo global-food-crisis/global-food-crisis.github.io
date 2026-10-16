@@ -3,14 +3,22 @@
 // DriversChart — Chapter 4. Primary driver of acute food insecurity, 2025
 // (one attributed driver per country; populations nearly disjoint).
 // Labels reuse the cause titles from the i18n dictionary.
+// On narrow (phone) canvases the value labels move off the bars into the
+// tap/hover tooltip and the y-axis truncates harder, so the bars keep
+// meaningful width instead of being squeezed out by the label gutter.
 
 import { useMemo } from "react";
 import { BaseChart, THEME, baseTooltip, type ChartOption } from "./BaseChart";
 import { useI18n } from "@/i18n";
 import { usePrefersReducedMotion } from "@/lib/useLazyData";
+import { useElementWidth } from "@/lib/useElementWidth";
 import { formatCountries, formatPeople } from "@/lib/format";
 
 export type DriverStat = { driver: string; millions: number; countries: number };
+
+// Below this canvas width the right-hand value labels no longer fit next
+// to the bars; the figures stay available via the tooltip.
+const WIDE_LABELS_MIN_WIDTH = 560;
 
 const COLORS: Record<string, string> = {
   conflict: "#c05b3b",
@@ -28,6 +36,8 @@ const DRIVER_TO_CAUSE: Record<string, string> = {
 export function DriversChart({ drivers }: { drivers: DriverStat[] }) {
   const { t, locale } = useI18n();
   const reduced = usePrefersReducedMotion();
+  const [wrapRef, width] = useElementWidth();
+  const wide = width >= WIDE_LABELS_MIN_WIDTH;
 
   const labels = useMemo(() => {
     const byId = new Map(t.ch4.causes.map((c) => [c.id, c.title]));
@@ -39,7 +49,9 @@ export function DriversChart({ drivers }: { drivers: DriverStat[] }) {
   const option = useMemo<ChartOption>(() => {
     return {
       backgroundColor: "transparent",
-      grid: { left: 8, right: 90, top: 8, bottom: 8, containLabel: true },
+      grid: wide
+        ? { left: 8, right: 90, top: 8, bottom: 8, containLabel: true }
+        : { left: 8, right: 14, top: 8, bottom: 8, containLabel: true },
       tooltip: {
         ...baseTooltip(),
         trigger: "axis",
@@ -74,8 +86,8 @@ export function DriversChart({ drivers }: { drivers: DriverStat[] }) {
         axisLabel: {
           color: THEME.cream,
           fontFamily: THEME.fontUi,
-          fontSize: 12,
-          width: 160,
+          fontSize: wide ? 12 : 11,
+          width: wide ? 160 : 108,
           overflow: "truncate",
         },
         axisLine: { lineStyle: { color: THEME.line } },
@@ -94,7 +106,7 @@ export function DriversChart({ drivers }: { drivers: DriverStat[] }) {
           })),
           barWidth: "52%",
           label: {
-            show: true,
+            show: wide,
             position: "right",
             distance: 8,
             color: THEME.creamDim,
@@ -109,14 +121,16 @@ export function DriversChart({ drivers }: { drivers: DriverStat[] }) {
         },
       ],
     };
-  }, [drivers, labels, t, locale]);
+  }, [drivers, labels, t, locale, wide]);
 
   return (
-    <BaseChart
-      option={option}
-      ariaLabel={`${t.ch4.driversChartTitle}. ${t.common.chartAriaFallback}`}
-      animation={!reduced}
-      style={{ height: "240px", width: "100%" }}
-    />
+    <div ref={wrapRef}>
+      <BaseChart
+        option={option}
+        ariaLabel={`${t.ch4.driversChartTitle}. ${t.common.chartAriaFallback}`}
+        animation={!reduced}
+        style={{ height: "240px", width: "100%" }}
+      />
+    </div>
   );
 }
