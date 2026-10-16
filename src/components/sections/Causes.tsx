@@ -9,6 +9,7 @@ import { useI18n } from "@/i18n";
 import { useLazyJson, usePrefersReducedMotion } from "@/lib/useLazyData";
 import { Reveal } from "../Reveal";
 import { SourceNote } from "../SourceNote";
+import { ChartHint } from "../ChartHint";
 import { DriversChart, type DriverStat } from "../charts/DriversChart";
 import { PriceIndexChart, type FpiPoint } from "../charts/PriceIndexChart";
 
@@ -26,6 +27,7 @@ type Cause = {
   case2Source?: string;
   chartTitle?: string;
   chartSubtitle?: string;
+  chartHint?: string;
   chartExplainer?: string;
   chartNote?: string;
   caveat: string;
@@ -61,6 +63,7 @@ export function Causes() {
           <div className="chart-frame" style={{ marginTop: "2.4rem" }}>
             <div className="chart-frame__head">
               <h3 className="chart-title">{t.ch4.driversChartTitle}</h3>
+              <ChartHint template={t.ch4.driversHint} />
             </div>
             {acute.status === "ready" && acute.data ? (
               <DriversChart drivers={acute.data.drivers2025} />
@@ -113,6 +116,9 @@ export function Causes() {
                     <h3 className="chart-title">{cause.chartTitle}</h3>
                     {cause.chartSubtitle && (
                       <p className="chart-subtitle">{cause.chartSubtitle}</p>
+                    )}
+                    {cause.chartHint && (
+                      <ChartHint template={cause.chartHint} />
                     )}
                   </div>
                   {cause.chartExplainer && (
