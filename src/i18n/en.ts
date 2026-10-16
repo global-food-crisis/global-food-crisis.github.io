@@ -43,6 +43,11 @@ export const en = {
     retry: "Try again",
     noData: "No data",
     chartAriaFallback: "Interactive chart. A data table is available below.",
+    // Interaction-hint verbs — chosen at runtime by input modality
+    // (touch → tap, mouse → hover, hybrid → both).
+    hintVerbTap: "Tap",
+    hintVerbHover: "Hover over",
+    hintVerbBoth: "Tap or hover over",
     millionPeople: "million people",
     hundredMillionPeople: "hundred million people",
     tenThousandPeople: "ten thousand people",
@@ -166,6 +171,10 @@ export const en = {
       "The global average of 7.8% conceals a world of extremes. Africa now carries more undernourished people than any other continent: about 309 million in 2025, surpassing Asia's 292 million for the first time. One continent's crisis is not another's trend.",
     mapTitle: "Prevalence of undernourishment, share of population",
     mapSubtitle: "Latest available country assessment — 2023 for most countries (FAO via Our World in Data)",
+    chartsIntro:
+      "The charts in this story are interactive — {verb} any point, bar or country to read its exact values. Start with the map below.",
+    mapHint:
+      "{verb} a country to see its latest value; click or tap a country to pin its details in the panel below.",
     legendTitle: "Share of population undernourished",
     searchLabel: "Find a country",
     searchPlaceholder: "Type a country name…",
@@ -213,6 +222,7 @@ export const en = {
     lede:
       "No single cause explains hunger. Households are pushed into food insecurity by overlapping shocks — war, weather, prices, poverty — sitting on structural weaknesses: thin markets, weak infrastructure, few safety nets. The Global Report on Food Crises attributes one primary driver per country; in reality, drivers compound each other.",
     driversChartTitle: "What drove acute food insecurity in 2025?",
+    driversHint: "{verb} a bar to see the people affected and the country count.",
     driversChartNote:
       "One primary driver attributed per country — 147.4 + 87.5 + 29.8 million nearly spans the 266 million total without overlapping. In reality drivers co-occur: 31 countries reported economic shocks as an additional driver. Primary-driver populations must not be added to other indicators.",
     causes: [
@@ -291,6 +301,7 @@ export const en = {
           "World food prices have swung violently twice in a generation. The 2007–08 crisis put the FAO Food Price Index at a then-record 117.7 (annual average) and triggered unrest in dozens of countries. The 2022 peak — an annual average of 144.5, monthly 160.3 in March 2022, the highest since the index began in 1990 — followed Russia's invasion of Ukraine, a major grain and fertilizer exporter. Countries that import most of their food, and households that spend most of their income on it, absorb those shocks first and recover last.",
         chartTitle: "FAO Food Price Index",
         chartSubtitle: "Annual averages · index points, 2014–2016 average = 100",
+          chartHint: "{verb} any year to read its index value.",
         chartExplainer:
           "The FAO Food Price Index tracks the international prices of a basket of globally traded food commodities — cereals, vegetable oils, dairy, meat and sugar, weighted by their export shares. It is not a measure of supermarket prices or of what any household spends on food, but international price swings do reach local markets through trade, exchange rates and supply chains. The 2014–2016 average is set to 100, so an index of 125 sits about 25% above that baseline — not 25% higher than the previous year.",
         chartNote:
@@ -314,6 +325,8 @@ export const en = {
     lede:
       "The honest answer: progress happened, then reversed, then partially returned. The share of humanity that is undernourished fell steadily for fifteen years — from 12.7% in 2000 to about 7.5% by the mid-2010s — then rose again through the pandemic and the wars of the early 2020s. Since 2022 the curve has bent back down. Whether that holds depends on the causes in Chapter 4.",
     chartTitle: "Global hunger over time",
+    trendHint:
+      "{verb} the chart to read any year's values; the buttons above switch views and regions.",
     viewPercent: "Share of population (%)",
     viewNumber: "Number of people (millions)",
     regionWorld: "World",
@@ -344,8 +357,10 @@ export const en = {
     ],
     acuteTitle: "The acute view: food crises since 2016",
     acuteChartTitle: "People in food crisis (IPC/CH Phase 3+), 2016–2025",
+    acuteHint:
+      "{verb} any year to see the people in food crisis and that year's country coverage.",
     acuteNote:
-      "Acute food insecurity has roughly doubled in a decade — but read the coverage label under each bar: the 2026 edition assessed only 47 countries with comparable data, the lowest in a decade, and 18 countries lacked data entirely. The 2024→2025 decline partly reflects that lost coverage, not only real improvement. This series must never be compared, or added, to the chronic-hunger line above.",
+      "Acute food insecurity has roughly doubled in a decade — but check each year's country coverage (printed under each bar on wide screens, and in the chart tooltip): the 2026 edition assessed only 47 countries with comparable data, the lowest in a decade, and 18 countries lacked data entirely. The 2024→2025 decline partly reflects that lost coverage, not only real improvement. This series must never be compared, or added, to the chronic-hunger line above.",
     downloadLabel: "Download the data (CSV)",
     downloadNote:
       "Contains both series shown above, with sources and reference years. Open it in any spreadsheet application.",
