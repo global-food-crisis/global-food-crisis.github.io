@@ -36,7 +36,12 @@ export function Hero() {
             <p className="kicker hero-kicker">{t.ch1.kicker}</p>
           </Reveal>
           <Reveal delay={70}>
-            <h1 className="h-display hero-title">{t.ch1.title}</h1>
+            {/* id + tabindex: focus target for the footer's "Back to top"
+                control — moving focus here resets the keyboard reading
+                position to the top of the story. */}
+            <h1 className="h-display hero-title" id="hero-title" tabIndex={-1}>
+              {t.ch1.title}
+            </h1>
           </Reveal>
           <Reveal delay={140}>
             <p className="lede hero-lede">{t.ch1.lede}</p>

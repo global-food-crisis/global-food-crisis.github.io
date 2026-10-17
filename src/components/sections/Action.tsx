@@ -2,10 +2,15 @@
 
 // Action — Chapter 6. Interest-based selector (accordion) with realistic,
 // non-guilt-based recommendations, verified external resources, and the
-// honest food-waste caveat. Ends with the closing statement.
+// honest food-waste caveat. The "share" interest panel carries the copy-link
+// control: one tap copies the canonical homepage URL, with a legacy
+// execCommand fallback for older iOS Safari / non-secure contexts and a
+// manual copy fallback message when the clipboard is unavailable. Ends with
+// the closing statement.
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/i18n";
+import { SITE_URL } from "@/lib/site";
 import { Reveal } from "../Reveal";
 
 export function Action() {
@@ -75,6 +80,7 @@ export function Action() {
                       </li>
                     ))}
                   </ul>
+                  {interest.id === "share" && <ShareLinkBox />}
                 </div>
               </Reveal>
             );
@@ -90,4 +96,90 @@ export function Action() {
       </div>
     </section>
   );
+}
+
+// Canonical homepage URL — never the current hash / query string, never the
+// GitHub Pages fallback host.
+const CANONICAL_URL = `${SITE_URL}/`;
+
+function ShareLinkBox() {
+  const { t } = useI18n();
+  const [state, setState] = useState<"idle" | "copied" | "error">("idle");
+  const restoreTimer = useRef<number | null>(null);
+
+  // Clear any pending label-restore timer when the panel unmounts.
+  useEffect(
+    () => () => {
+      if (restoreTimer.current !== null) window.clearTimeout(restoreTimer.current);
+    },
+    [],
+  );
+
+  const copyLink = async () => {
+    if (restoreTimer.current !== null) {
+      window.clearTimeout(restoreTimer.current);
+      restoreTimer.current = null;
+    }
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(CANONICAL_URL);
+      } else {
+        legacyCopy(CANONICAL_URL);
+      }
+      // Success only after the clipboard operation actually resolved.
+      setState("copied");
+      restoreTimer.current = window.setTimeout(() => setState("idle"), 2400);
+    } catch {
+      setState("error");
+    }
+  };
+
+  return (
+    <div className="share-box">
+      <p className="share-box__note">{t.ch6.copyNote}</p>
+      <div className="share-box__row">
+        <button
+          type="button"
+          className="link-btn share-box__btn"
+          onClick={copyLink}
+          aria-live="polite"
+        >
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+            <path
+              d="M6 3 h-3 a1.5 1.5 0 0 0 -1.5 1.5 v7 a1.5 1.5 0 0 0 1.5 1.5 h7 a1.5 1.5 0 0 0 1.5 -1.5 v-3 M10.5 1.5 h4 v4 M14.5 1.5 L7.5 8.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          {state === "copied" ? t.ch6.copied : t.ch6.copyLink}
+        </button>
+        {state === "error" && (
+          <p className="share-box__fallback" role="status">
+            {t.ch6.copyFailed}{" "}
+            <span className="share-box__url">{CANONICAL_URL}</span>
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Synchronous fallback for browsers without the async Clipboard API (older
+// iOS Safari, non-secure contexts). Throws when the copy does not succeed so
+// the caller can show the manual-copy message.
+function legacyCopy(text: string) {
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.position = "fixed";
+  area.style.opacity = "0";
+  document.body.appendChild(area);
+  area.select();
+  area.setSelectionRange(0, text.length);
+  const ok = document.execCommand("copy");
+  document.body.removeChild(area);
+  if (!ok) throw new Error("legacy copy failed");
 }

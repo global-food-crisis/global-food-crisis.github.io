@@ -144,3 +144,79 @@ Stage Summary:
 - Ch6: three confirmed site-404s replaced with verified official pages (foodbanking global-reach, UNEP Seven ways — moved to waste, FAO policy-support FLW); the SDG 2 link was a wrong-host DNS error, fixed to sdgs.un.org; ipcinfo left as-is (verification blocked in this environment, no failure reported by the user).
 - "Contribute code" rewritten as "share this site" — sharing/introduction/attribution focus, license-aware, no contributor management.
 - 6 files modified, 0 added, 0 deleted. Deliverable: gfc-links-and-share.zip in download/.
+
+---
+Task ID: 12
+Agent: Super Z (main agent)
+Task: Four-feature update per user spec — (1) left+right arrows on the chapter
+navigation, (2) "Further reading" footer cross-link to the separate Remember
+to Prevent project, (3) "Back to top" control at the very bottom, (4) "Copy
+website link" button in the Chapter 6 share panel. Interaction patterns follow
+the reference implementation at remember-to-prevent.github.io.
+
+Work Log:
+- Header.tsx: replaced the single right chevron (.nav-more) with two real
+  button arrows (.nav-arrow) flanking the nav scroller. Arrows render only
+  when JS measures real overflow (data-overflow) — hidden when all links
+  fit (e.g. 430px zh-TW); with overflow present both stay visible and the
+  boundary one is disabled (dimmed). Re-measured on scroll, ResizeObserver,
+  window resize + orientationchange, document.fonts.ready and language
+  change; initial measure runs pre-paint (isomorphic layout effect).
+  scrollNav respects prefers-reduced-motion; localized aria-labels/
+  titles; auto-reveal of the scrollspy-active chapter kept.
+- globals.css: arrow styles at base scope (apply at any width, incl. the
+  rare >900px overflow case); edge fades offset past both arrows and gated
+  on data-overflow; new .footer-reading / .footer-bottom / .share-box
+  component styles (green-and-gold tokens only).
+- Footer.tsx: added the Further reading section (own bordered block after
+  the sources grid, clearly separate from primary data sources; copy
+  introduces Remember to Prevent as a separate independent educational
+  project on the two world wars, explicitly "not a data source for this
+  site"; external link styled gold with ↗, target=_blank noopener) and the
+  Back to top pill at the very bottom — in-page scroll (language/chart
+  state preserved), href="#top" keeps the no-JS native fallback, focus
+  moves to the hero headline (#hero-title, tabindex=-1 added in Hero.tsx),
+  prefers-reduced-motion scrolls instantly.
+- Action.tsx: ShareLinkBox inside the "I want to share this site" panel —
+  copies the canonical https://global-food-crisis.com/ (SITE_URL + "/",
+  never the current hash/query, never the GitHub Pages host). Async
+  Clipboard API first, legacy execCommand fallback for old iOS Safari /
+  non-secure contexts; success only after the copy resolves, label swaps
+  to the localized confirmation then restores after 2.4 s; aria-live on
+  the button; on failure a role="status" message shows the URL with
+  user-select: all for one-tap manual copying. No trackers, no SDKs.
+- i18n: nav.moreChapters replaced by nav.navScrollPrev/navScrollNext;
+  added ch6.copyNote/copyLink/copied/copyFailed and
+  footer.furtherTitle/furtherText/backToTop in both locales.
+- Validation: ESLint clean; i18n parity 213 paths; trend-logic 8/8; data
+  validation 19,716 checks / 0 failures; CI-identical static export
+  (NEXT_OUTPUT=export, empty base path) exit 0.
+- Browser QA (Playwright, served static export): 105/105 checks — arrows
+  at 320/390/430 EN+zh (visibility, boundary disabling, click-scroll both
+  directions, last chapter fully reachable, no label overlap, keyboard
+  Enter + visible focus outline, touch scroll via CDP touch events,
+  recalculation after language switch / orientation change / resize,
+  hide-when-fits at 430px zh, reduced-motion instant scroll); desktop
+  1280 arrows hidden; before/after header measurement (stash build) shows
+  1280/950/920 EN+zh layouts byte-for-layout identical (height 54.8 px,
+  same wordmark/nav/lang boxes) and mobile header height unchanged
+  (96.4 px). Further reading (both locales, href/target/rel, separation
+  from sources). Back to top (scroll, focus to hero headline, language
+  and chart state preserved, keyboard, reduced motion, no-JS #top
+  fallback). Copy link (canonical URL in clipboard verified via
+  readText in both locales, label swap + restore, failure fallback with
+  selectable URL + role=status, no success label on failure).
+  Regressions all green: hero kicker clear of header at all widths,
+  /#ch5 anchor clearance, no horizontal overflow, 5/5 chart canvases
+  paint, 6 chart hints, chapter link navigation, language switching,
+  zero console/page errors. VLM visual review of the screenshots
+  confirmed the rendered states.
+- Files changed: 8 (Header.tsx, Footer.tsx, Action.tsx, Hero.tsx, en.ts,
+  zh-TW.ts, globals.css, worklog.md). 0 added, 0 deleted.
+
+Stage Summary:
+- All four features implemented on the existing stack (Next.js 16, static
+  export, GitHub Pages deployment, CNAME/canonical untouched), verified
+  105/105 in-browser plus full CI-equivalent gates. Delivered as a ZIP of
+  the 8 modified files (project-relative paths) for manual upload via the
+  GitHub web interface; not pushed from this environment.

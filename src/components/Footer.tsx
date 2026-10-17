@@ -1,6 +1,9 @@
 "use client";
 
-// Footer — independence disclaimer, source list, license and data vintage.
+// Footer — independence disclaimer, source list, license, data vintage, the
+// "Further reading" cross-link to the separate Remember to Prevent project
+// (kept clearly apart from the primary data sources), and the bottom-of-page
+// "Back to top" control in normal document flow.
 
 import { useI18n } from "@/i18n";
 import { SITE_REPO_URL } from "@/lib/site";
@@ -12,6 +15,20 @@ export function Footer() {
     t.footer.sourcesUrl === "https://github.com/"
       ? SITE_REPO_URL || null
       : t.footer.sourcesUrl;
+
+  // "Back to top" — an in-page scroll only (the href="#top" fallback still
+  // works with JavaScript disabled). Focus moves to the hero headline so the
+  // keyboard / screen-reader reading position restarts at the top of the
+  // story. In-page scrolling also preserves the current language and chart
+  // selections — no navigation, no state reset.
+  const backToTop = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const heading = document.getElementById("hero-title");
+    heading?.focus({ preventScroll: true });
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  };
+
   return (
     <footer className="footer">
       <div className="shell">
@@ -46,6 +63,34 @@ export function Footer() {
             </p>
             <p style={{ fontFamily: "var(--font-ui)", fontSize: "0.8rem", color: "var(--cream-dim)", margin: 0 }}>{t.footer.builtNote}</p>
           </div>
+        </div>
+
+        {/* Further reading — a separate cross-link section, deliberately kept
+            apart from the primary data sources above. The linked project is an
+            independent educational project, not a source for this site's
+            statistics. */}
+        <section className="footer-reading" aria-label={t.footer.furtherTitle}>
+          <p className="chart-title">{t.footer.furtherTitle}</p>
+          <p className="footer-reading__text">
+            {t.footer.furtherText}{" "}
+            <a
+              className="footer-reading__link"
+              href="https://remember-to-prevent.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              remember-to-prevent.com
+              <span aria-hidden="true"> ↗</span>
+            </a>
+          </p>
+        </section>
+
+        {/* Back to top — the very last control, in normal document flow (no
+            floating overlay), styled like the site's other pill buttons. */}
+        <div className="footer-bottom">
+          <a href="#top" className="link-btn" onClick={backToTop}>
+            <span aria-hidden="true">↑</span> {t.footer.backToTop}
+          </a>
         </div>
       </div>
     </footer>

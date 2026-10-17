@@ -268,8 +268,40 @@ body {
   display: contents;
 }
 
-.nav-more {
+/* Arrows flank the chapter nav on both sides (left + right, following the
+   Remember to Prevent pattern). They stay display:none until JS measures
+   real horizontal overflow (data-overflow="true") — when all links fit, no
+   scroll controls are shown at all; without JavaScript the plain
+   touch-scrollable row (and anchor links) keep working. With overflow
+   present both arrows stay visible; the one at a boundary is disabled with
+   a clear dimmed state. */
+.nav-arrow {
   display: none;
+}
+
+.chapter-nav-row[data-overflow="true"] .nav-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--ink-2);
+  color: var(--gold);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.chapter-nav-row[data-overflow="true"] .nav-arrow:hover:not(:disabled) {
+  color: var(--gold-bright);
+  border-color: var(--line-strong);
+}
+
+.chapter-nav-row[data-overflow="true"] .nav-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .chapter-nav {
@@ -349,36 +381,16 @@ body {
     scroll-snap-align: start;
   }
 
-  .nav-more {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    position: relative;
+  .nav-arrow {
+    position: relative; /* layer above the edge fades */
     z-index: 2;
-    width: 2.1rem;
-    height: 2.1rem;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--ink-2);
-    color: var(--gold);
-    cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-  }
-
-  .nav-more:hover {
-    color: var(--gold-bright);
-    border-color: var(--line-strong);
-  }
-
-  .nav-more:disabled {
-    opacity: 0.35;
-    cursor: default;
   }
 
   /* edge fades — visual hint that the nav continues past the visible edge.
-     Hidden before hydration too: no data attributes are set yet, which maps
-     to the initial state (left fade off, right fade on). */
+     Offset past the 2.1rem arrows so they never cover a chapter label;
+     shown only when the row really overflows (data-overflow) and content is
+     hidden past that edge. Hidden before hydration too: no data attributes
+     are set yet, which maps to the initial state. */
   .chapter-nav-row::before,
   .chapter-nav-row::after {
     content: "";
@@ -393,20 +405,20 @@ body {
   }
 
   .chapter-nav-row::before {
-    left: 0;
+    left: 2.6rem; /* start just after the left arrow */
     background: linear-gradient(90deg, rgba(16, 26, 24, 0.92), rgba(16, 26, 24, 0));
   }
 
   .chapter-nav-row::after {
-    right: 2.6rem; /* stop just before the chevron */
+    right: 2.6rem; /* stop just before the right arrow */
     background: linear-gradient(270deg, rgba(16, 26, 24, 0.92), rgba(16, 26, 24, 0));
   }
 
-  .chapter-nav-row[data-at-start="false"]::before {
+  .chapter-nav-row[data-overflow="true"]:not([data-at-start="true"])::before {
     opacity: 1;
   }
 
-  .chapter-nav-row:not([data-at-end="true"])::after {
+  .chapter-nav-row[data-overflow="true"]:not([data-at-end="true"])::after {
     opacity: 1;
   }
 }
@@ -1509,3 +1521,106 @@ body {
   background: var(--ink-3);
   border-radius: 4px;
 }
+
+/* =========================================================================
+   Footer additions — "Further reading" cross-link + "Back to top"
+   and Chapter 6 copy-link box (four-feature update)
+   ========================================================================= */
+
+/* further reading — its own section, deliberately separate from the
+   primary data sources block above it */
+.footer-reading {
+  margin-top: 2.2rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.6rem;
+}
+
+.footer-reading__text {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--cream-dim);
+  max-width: 70ch;
+  margin: 0.5rem 0 0;
+}
+
+.footer-reading__link {
+  color: var(--gold-bright);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+  white-space: nowrap;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.footer-reading__link:hover {
+  color: #ffffff;
+  text-decoration-color: var(--gold);
+}
+
+/* back to top — last element of the footer, normal document flow */
+.footer-bottom {
+  margin-top: 2.4rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.8rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* ---- chapter 6: copy website link (inside the "share" interest panel) ---- */
+
+.share-box {
+  margin-top: 1.2rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--ink-2);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.share-box__note {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--cream-dim);
+  margin: 0;
+}
+
+.share-box__row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.share-box__btn {
+  flex: none;
+}
+
+/* manual-copy fallback message (shown when the clipboard is unavailable) */
+.share-box__fallback {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--cream);
+  margin: 0;
+}
+
+/* one tap/click selects the whole URL for manual copying */
+.share-box__url {
+  color: var(--gold-bright);
+  user-select: all;
+  -webkit-user-select: all;
+  cursor: text;
+}
+
+@media (min-width: 640px) {
+  .share-box__row {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+

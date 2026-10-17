@@ -19,7 +19,8 @@ export const zhTW: Dictionary = {
     langOther: "English",
     langSwitchAria: "切換語言",
     navAria: "章節導覽",
-    moreChapters: "更多章節",
+    navScrollPrev: "向前捲動章節",
+    navScrollNext: "向後捲動章節",
   },
   common: {
     sourceLabel: "資料來源",
@@ -444,6 +445,10 @@ export const zhTW: Dictionary = {
     closingTitle: "一句誠實的話",
     closingBody:
       "6.45 億人面臨飢餓，既非宿命、也非虛構——它是關於戰爭、市場、基礎建設與照顧的種種選擇，可以被測量的結果。連續三年的改善證明它可以改變。第四年會怎樣，取決於尚未做出的決定——其中，也包括你的，雖小、卻真實。",
+    copyNote: "一鍵複製本站的標準連結——沒有分享按鈕、沒有追蹤器，什麼都不會離開你的裝置。",
+    copyLink: "複製網站連結",
+    copied: "已複製連結",
+    copyFailed: "此瀏覽器無法自動複製——請手動選取並複製以下連結：",
   },
   footer: {
     title: "全球糧食危機 — 第一章",
@@ -464,5 +469,10 @@ export const zhTW: Dictionary = {
     licenseNote: "程式碼：MIT 授權。資料：依各資料集授權（CC BY 4.0／公共領域）標註，詳見儲存庫來源說明。",
     retrievedNote: "所有資料擷取於 2026-10-15。",
     builtNote: "以純靜態網站構建——無追蹤、無分析、無 Cookie。",
+    furtherTitle: "延伸閱讀",
+    furtherText:
+      "《Remember to Prevent》是一個獨立的教育專案——並非本站的資料來源——檢視兩次世界大戰，並反思如何避免類似的悲劇重演。衝突是本站第四章探討的飢餓成因之一；兩個專案皆以證據為本，追索戰爭的人類代價。",
+    backToTop: "回到頂端",
   },
 };
+

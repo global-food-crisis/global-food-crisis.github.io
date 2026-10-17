@@ -6,24 +6,45 @@
 //
 // Responsive layout: desktop keeps a single row (wordmark | nav | language).
 // At <=900px the bar becomes two rows via flex-wrap: row 1 = wordmark +
-// language, row 2 = the full-width chapter nav as a horizontal scroller with
-// a chevron button and edge fades (data-at-start / data-at-end) so all six
-// chapters are discoverable on phones. The .chapter-nav-row wrapper uses
-// `display: contents` on desktop, so the desktop layout is untouched.
+// language, row 2 = the full-width chapter nav as a horizontal scroller.
+//
+// Chapter scroller affordance: left and right arrow buttons flank the nav
+// whenever it actually overflows (data-overflow, measured from JS), following
+// the Remember to Prevent pattern. With overflow present both arrows stay
+// visible; the one at a boundary is disabled with a clear dimmed state. When
+// all links fit, the arrows (and edge fades) hide completely. The arrows are
+// keyboard-accessible real buttons, respect prefers-reduced-motion, and
+// boundaries are re-measured on scroll, resize, orientation change, font load
+// and language change (label widths differ per locale). The
+// .chapter-nav-row wrapper uses `display: contents` on desktop, so the
+// desktop layout is untouched unless the nav truly overflows there.
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useI18n, type Locale } from "@/i18n";
 
 const SECTION_IDS = ["ch1", "ch2", "ch3", "ch4", "ch5", "ch6"];
+
+// useLayoutEffect logs a warning during prerender; fall back to useEffect on
+// the server so the initial measurement runs before first paint on clients.
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export function Header() {
   const { locale, t, setLocale } = useI18n();
   const [active, setActive] = useState(0);
   const navRef = useRef<HTMLElement | null>(null);
   // Scroller affordance state. Defaults assume scrollLeft = 0 (matches the
-  // pre-hydration / no-JS rendering: right fade + chevron visible, no left fade).
+  // pre-hydration / no-JS rendering: no overflow detected → arrows hidden,
+  // touch scrolling and anchor links still fully work).
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
+  const [canScroll, setCanScroll] = useState(false);
 
   useEffect(() => {
     const sections = SECTION_IDS.map((id) => document.getElementById(id)).filter(
@@ -47,19 +68,39 @@ export function Header() {
     return () => observer.disconnect();
   }, []);
 
-  // --- horizontal chapter scroller (mobile) -------------------------------
-  const updateNavScrollState = () => {
+  // --- horizontal chapter scroller (arrows + fades) ------------------------
+  const updateNavScrollState = useCallback(() => {
     const el = navRef.current;
     if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setCanScroll(max > 4);
     setAtStart(el.scrollLeft <= 2);
-    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 2);
-  };
-
-  useEffect(() => {
-    updateNavScrollState();
-    window.addEventListener("resize", updateNavScrollState);
-    return () => window.removeEventListener("resize", updateNavScrollState);
+    setAtEnd(max <= 4 || el.scrollLeft >= max - 2);
   }, []);
+
+  // Re-measure on: initial layout (before paint), scroller scroll, element /
+  // viewport resize (covers orientation changes), webfont load, and language
+  // change (t identity changes when the locale swaps, and localized labels
+  // have different widths).
+  useIsomorphicLayoutEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    updateNavScrollState();
+    el.addEventListener("scroll", updateNavScrollState, { passive: true });
+    const ro = new ResizeObserver(updateNavScrollState);
+    ro.observe(el);
+    window.addEventListener("resize", updateNavScrollState);
+    window.addEventListener("orientationchange", updateNavScrollState);
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      void document.fonts.ready.then(() => updateNavScrollState());
+    }
+    return () => {
+      el.removeEventListener("scroll", updateNavScrollState);
+      ro.disconnect();
+      window.removeEventListener("resize", updateNavScrollState);
+      window.removeEventListener("orientationchange", updateNavScrollState);
+    };
+  }, [updateNavScrollState, t]);
 
   // Keep the scrollspy-active chapter visible in the scroller (mobile).
   useEffect(() => {
@@ -74,10 +115,12 @@ export function Header() {
     });
   }, [active]);
 
-  const scrollNavForward = () => {
+  const scrollNav = (direction: 1 | -1) => {
     const el = navRef.current;
     if (!el) return;
-    el.scrollBy({ left: el.clientWidth * 0.8, behavior: "smooth" });
+    const amount = Math.max(160, el.clientWidth * 0.8);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollBy({ left: direction * amount, behavior: reduced ? "auto" : "smooth" });
   };
 
   const switchTo = (next: Locale) => (e: React.MouseEvent) => {
@@ -96,7 +139,14 @@ export function Header() {
           className="chapter-nav-row"
           data-at-start={atStart}
           data-at-end={atEnd}
+          data-overflow={canScroll}
         >
+          <NavArrow
+            label={t.nav.navScrollPrev}
+            disabled={!canScroll || atStart}
+            onClick={() => scrollNav(-1)}
+            path="M8.5 1.5 L3.5 6 L8.5 10.5"
+          />
           <nav
             className="chapter-nav"
             aria-label={t.nav.navAria}
@@ -109,31 +159,12 @@ export function Header() {
               </a>
             ))}
           </nav>
-          <button
-            type="button"
-            className="nav-more"
-            aria-label={t.nav.moreChapters}
-            title={t.nav.moreChapters}
-            onClick={scrollNavForward}
-            disabled={atEnd}
-          >
-            <svg
-              viewBox="0 0 12 12"
-              width="10"
-              height="10"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                d="M3.5 1.5 L8.5 6 L3.5 10.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+          <NavArrow
+            label={t.nav.navScrollNext}
+            disabled={!canScroll || atEnd}
+            onClick={() => scrollNav(1)}
+            path="M3.5 1.5 L8.5 6 L3.5 10.5"
+          />
         </div>
         <div
           className="lang-switch"
@@ -160,5 +191,45 @@ export function Header() {
         </div>
       </div>
     </header>
+  );
+}
+
+function NavArrow({
+  label,
+  disabled,
+  onClick,
+  path,
+}: {
+  label: string;
+  disabled: boolean;
+  onClick: () => void;
+  path: string;
+}) {
+  return (
+    <button
+      type="button"
+      className="nav-arrow"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <svg
+        viewBox="0 0 12 12"
+        width="10"
+        height="10"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          d={path}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
   );
 }

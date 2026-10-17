@@ -26,7 +26,8 @@ export const en = {
     langOther: "繁體中文",
     langSwitchAria: "Switch language",
     navAria: "Chapter navigation",
-    moreChapters: "Show more chapters",
+    navScrollPrev: "Scroll to earlier chapters",
+    navScrollNext: "Scroll to later chapters",
   },
   common: {
     sourceLabel: "Source",
@@ -459,6 +460,11 @@ export const en = {
     closingTitle: "One honest sentence",
     closingBody:
       "645 million people facing hunger is neither fate nor fiction — it is the measurable result of choices about war, markets, infrastructure and care. Three years of improvement prove it can move. What happens in the fourth year depends on decisions not yet made — including, in small but real ways, yours.",
+    copyNote:
+      "One tap copies the site's canonical link — no share buttons, no trackers; nothing leaves your device.",
+    copyLink: "Copy website link",
+    copied: "Link copied",
+    copyFailed: "Copy is not available in this browser — select and copy the link manually:",
   },
   footer: {
     title: "Global Food Crisis — Chapter 01",
@@ -479,6 +485,10 @@ export const en = {
     licenseNote: "Code: MIT. Data: attributed per dataset (CC BY 4.0 / public domain), see the repository's source notes.",
     retrievedNote: "All datasets retrieved 2026-10-15.",
     builtNote: "Built as a static site — no tracking, no analytics, no cookies.",
+    furtherTitle: "Further reading",
+    furtherText:
+      "Remember to Prevent is a separate, independent educational project — not a data source for this site — that examines the two world wars and reflects on how such tragedies might be prevented. Conflict is among the drivers of hunger traced in Chapter 4; both projects follow the human cost of war with the same evidence-first approach.",
+    backToTop: "Back to top",
   },
 };
 
