@@ -3,7 +3,9 @@
 import json
 from pathlib import Path
 
-DATA = Path("/home/z/my-project/public/data")
+# Resolve relative to this script (scripts/ -> repo root) so the tool works
+# from any working directory and on any OS — no machine-specific paths.
+DATA = Path(__file__).resolve().parents[1] / "public" / "data"
 
 def summarize(path: Path):
     obj = json.loads(path.read_text())

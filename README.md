@@ -55,7 +55,8 @@ Useful scripts:
 | `bun run dev` | Development server with hot reload |
 | `bun run lint` | ESLint (Next.js + React rules) |
 | `bun run validate:i18n` | i18n structural parity check (en ↔ zh-TW) |
-| `python3 scripts/validate_data.py` | Data integrity validation (19,705 checks) |
+| `python3 scripts/validate_data.py` | Data integrity validation (19,718 checks) |
+| `python3 scripts/inspect_data.py` | Quick structural summary of `public/data/*.json` |
 | `python3 scripts/export_csv.py` | Regenerate the Chapter 5 download CSV |
 | `bun run build:export` | Static export for GitHub Pages (see below) |
 
@@ -76,7 +77,7 @@ Processed files consumed by the site:
 | File | Content | Source |
 | --- | --- | --- |
 | `public/data/pou-country.json` | Undernourishment prevalence by country (170 countries, 2023 vintage) | FAO (SDG 2.1.1) via Our World in Data |
-| `public/data/trend.json` | World share 2000–2024, world number 2001–2023, regional series, SOFI 2026 point | FAO via OWID; World Bank WDI (SN.ITK.DEFC); SOFI 2026 |
+| `public/data/trend.json` | World share 2000–2024, world number 2001–2023, regional series, SOFI 2026 point | FAO via OWID; World Bank HNP Statistics (SN.ITK.DEFC); SOFI 2026 |
 | `public/data/acute-food-insecurity.json` | IPC/CH Phase 3+ series 2016–2025 + 2025 primary-driver stats | GRFC 2026 |
 | `public/data/food-price-index.json` | FAO Food Price Index, annual 2000–2025 | FAO |
 | `public/data/world-map.json` | World boundaries GeoJSON with ISO alpha-3 codes | Natural Earth (public domain) |
@@ -108,10 +109,11 @@ Then update the statistics and reference years in `src/i18n/en.ts` and
 ├── src/i18n/                   # en.ts, zh-TW.ts, provider (all user-facing copy)
 ├── src/lib/                    # basePath, lazy JSON loading, formatting, site config
 ├── public/data/                # Versioned static datasets (JSON + CSV)
-├── scripts/                    # Python data pipeline (download / process / validate / export)
+├── scripts/                    # Python data pipeline + diagnostics (validate / process / export / inspect)
 ├── docs/                       # sources.md, methodology.md, data-dictionary.md, limitations.md
-├── tests/                      # i18n parity test (bun)
-├── .github/workflows/deploy.yml  # Validate → static export → GitHub Pages
+├── tests/                      # i18n parity + chart-logic tests (bun) and the tsc known-issue baseline
+├── .github/workflows/deploy.yml        # Validate → static export → GitHub Pages (push to main)
+├── .github/workflows/pr-validation.yml # Same gates on pull requests; never deploys
 └── data/raw/, data/manual/     # Raw inputs retained for reproducibility
 ```
 
@@ -125,6 +127,14 @@ The included workflow (`.github/workflows/deploy.yml`) runs on every push to
    `NEXT_PUBLIC_BASE_PATH=/<repository-name>` set automatically, so all
    runtime data fetches resolve under the project sub-path.
 3. **Deploys** — uploads `out/` via the official GitHub Pages actions.
+
+Pull requests targeting `main` are validated separately by
+[`.github/workflows/pr-validation.yml`](.github/workflows/pr-validation.yml):
+the same lint / i18n / logic / data gates, the same static export build
+(never published), plus an explicit TypeScript check compared against the
+documented known-issue baseline
+([`tests/typescript-baseline.txt`](tests/typescript-baseline.txt)). The PR
+workflow runs with read-only permissions and no secrets.
 
 One-time repository setup:
 
@@ -157,8 +167,13 @@ NEXT_OUTPUT=export NEXT_PUBLIC_BASE_PATH="" bun run build:export
 ## Testing and validation
 
 - `bun run lint` — code quality (0 errors expected)
-- `bun run validate:i18n` — 191 structural paths must match across languages
-- `python3 scripts/validate_data.py` — 19,705 data checks, 0 failures expected
+- `bun run validate:i18n` — 216 structural paths must match across languages
+- `python3 scripts/validate_data.py` — 19,718 data checks, 0 failures expected
+- `python3 scripts/check_tsc_baseline.py tsc-current.txt` — TypeScript
+  diagnostics must not regress beyond the documented baseline (pre-existing
+  baseline diagnostics are listed in `tests/typescript-baseline.txt`; the
+  production build does not type-gate, so PR CI reports tsc status
+  explicitly)
 - Manual QA checklist: both languages × desktop/mobile, keyboard navigation,
   map interactions (hover/tap/click/search), chart controls, reduced-motion
   mode, offline data-file failure states.

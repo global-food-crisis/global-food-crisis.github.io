@@ -6,20 +6,23 @@
 #            Information Network (FSIN)
 # Report:    2026 Global Report on Food Crises (10th edition, published 2026-04-24)
 # URL:       https://www.fightfoodcrises.net/global-report-food-crises
-# Full PDF:  https://reliefweb.int/attachments/81ec5beb-e188-402b-999b-9bdc3bfa62bf/cd9424en.pdf
-# License:   (c) FAO — reuse under FAO terms; cited with attribution
+# Full PDF:  https://openknowledge.fao.org/server/api/core/bitstreams/86067cbb-9396-4e7d-8d19-e60ad00d2f73/content
+# License:   CC BY 4.0 (FAO/GNAFC, with third-party exceptions per the
+#            report's copyright page) - cited with attribution
 #
-# VALUES: transcribed from Figure 2.1 of the GRFC 2026 report
+# VALUES: transcribed from Figure 2.7 of the GRFC 2026 report (print p. 26)
 # ("Number of people facing high levels of acute food insecurity (millions)"
 # and number of countries/territories with data meeting GRFC technical
 # requirements). Verified against the report's key findings text and the
-# 2026-04-24 joint FAO/WFP/GNAFC press release.
+# 2026-04-24 joint FAO/WFP/GNAFC press release. (Locator corrected from
+# "Figure 2.1" to "Figure 2.7" per the independent audit, GFC-016.)
 #
 # IMPORTANT CAVEAT (from the report itself): year-to-year comparisons are
 # affected by changing country coverage. The 2026 edition covers 47 countries/
 # territories — the lowest in a decade — so the drop from 2024 to 2025 partly
 # reflects reduced data availability, not only real improvement.
-# In 2025, 18 countries/territories lacked comparable data.
+# In 2025, 18 selected countries/territories lacked estimates meeting GRFC
+# requirements, including some with no available data at all.
 #
 # Retrieved: 2026-10-15 (from the full report PDF downloaded via ReliefWeb)
 #

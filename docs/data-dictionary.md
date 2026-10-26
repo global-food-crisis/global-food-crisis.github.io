@@ -12,7 +12,11 @@ Country-level undernourishment prevalence (Chapter 3 map, search, table).
 {
   "meta": { "publisher": "...", "dataset": "...", "url": "...",
             "republishedBy": "...", "license": "...",
-            "referenceYear": 2023, "retrieved": "2026-10-15", "note": "..." },
+            "sourceEdition": "FAO 2025 edition, as republished by Our World in Data",
+            "sourceUpdated": "2026-02-25",
+            "averagingPeriod": "country values are three-year averages",
+            "referenceYear": "latest available per country (2023 for 166 of 170; ...)",
+            "retrieved": "2026-10-15", "note": "..." },
   "countries": [
     {
       "code": "AFG",        // ISO 3166-1 alpha-3 — join key
@@ -20,12 +24,16 @@ Country-level undernourishment prevalence (Chapter 3 map, search, table).
       "year": 2023,         // statistical reference year of the value
       "value": 28.1,        // prevalence, percent (2.5 = FAO floor when below=true)
       "below": false,       // true → FAO reports "<2.5%", value is the floor
-      "stale": false,       // true → assessment too old to map (pre-2019)
+      "stale": false,       // true → too old / pre-disruption (pre-2021 rounds, or SDN 2021 pre-war); greyed on the map, archived value kept in the table
       "a2": "AF"            // ISO alpha-2 — key for Intl.DisplayNames
     }
   ]
 }
 ```
+
+`stale` entries currently: CUB (2006), PRK (2018), SDN (2021 — predates the
+April 2023 war, excluded per `PRE_DISRUPTION_NO_CURRENT` in
+`scripts/process_data.py`).
 
 ## world-map.json
 
@@ -73,7 +81,7 @@ GRFC 2026 acute series + 2025 primary drivers (Chapters 2, 4, 5).
 
 ```json
 {
-  "meta":        { ...provenance, "fullPdf": "...", "referencePeriod": "2025" },
+  "meta":        { ...provenance, "fullPdf": "...", "referencePeriod": "2016-2025 (2025 reference year for drivers)" },
   "series":      [ { "year": 2016, "millions": 105.3, "countries": 48 }, ... ],
   "drivers2025": [
     { "driver": "Conflict and insecurity", "millions": 147.4, "countries": 19 },
@@ -82,6 +90,11 @@ GRFC 2026 acute series + 2025 primary drivers (Chapters 2, 4, 5).
   ]
 }
 ```
+
+Locators: series = GRFC 2026 Figure 2.7 (print p. 26); drivers = §2.4,
+Figures 2.5 (p. 22) and 2.6 (p. 25). The three driver populations sum to
+264.7M vs the 265.7M total (separately assessed displaced groups whose
+primary driver differs are excluded from the breakdown).
 
 ## food-price-index.json
 
@@ -107,9 +120,9 @@ The Chapter 5 download. Header comments state the sources; columns:
 
 ## Raw inputs (not consumed by the site directly)
 
-- `data/raw/prevalence-of-undernourishment.csv` — OWID grapher CSV (FAO SDG 2.1.1)
-- `data/raw/wb-world-undernourished.json` — World Bank WDI API response (SN.ITK.DEFC)
+- `data/raw/prevalence-of-undernourishment.csv` — OWID grapher CSV (FAO SDG 2.1.1, FAO 2025 edition, updated 2026-02-25)
+- `data/raw/wb-world-undernourished.json` — World Bank API response (SN.ITK.DEFC, Health Nutrition and Population Statistics; underlying data FAO)
 - `data/raw/ne_50m_admin_0_countries.geojson` — Natural Earth admin-0 boundaries
-- `data/manual/grfc-acute-food-insecurity.csv` — GRFC series 2016–2025, manually compiled from GRFC 2026 press release/PDF with per-row provenance
-- `data/manual/grfc-drivers-2025.csv` — GRFC 2025 primary-driver table
-- `data/manual/fao-food-price-index.csv` — FAO FPI annual values, anchor-verified (see limitations.md)
+- `data/manual/grfc-acute-food-insecurity.csv` — GRFC series 2016–2025 (Figure 2.7, p. 26), manually compiled from GRFC 2026 press release/PDF with per-row provenance
+- `data/manual/grfc-drivers-2025.csv` — GRFC 2025 primary-driver table (§2.4, Figures 2.5–2.6)
+- `data/manual/fao-food-price-index.csv` — FAO FPI annual values; 2009–2025 verified against Food Outlook June 2026 Table 4.4, 2000–2008 FAO-derived and not independently re-verified (see limitations.md)

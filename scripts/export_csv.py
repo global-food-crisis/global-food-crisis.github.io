@@ -2,7 +2,7 @@
 """Export the Chapter 5 download CSV (trend.csv) from trend.json.
 
 Columns: year, world_share_percent (FAO via OWID), world_number_millions
-(FAO via World Bank WDI), plus the SOFI 2026 point for 2025. Source notes
+(FAO via the World Bank's Health Nutrition and Population Statistics), plus the SOFI 2026 point for 2025. Source notes
 are embedded as CSV comments so the file is self-describing.
 """
 import csv
@@ -40,7 +40,7 @@ rows.append(
 with DST.open("w", newline="", encoding="utf-8") as fh:
     fh.write("# Global Food Crisis - Chapter 01 - Chapter 5 data\n")
     fh.write("# world_share_percent: FAO, Prevalence of undernourishment (SDG 2.1.1), via Our World in Data\n")
-    fh.write("# world_number_millions: FAO via World Bank WDI (SN.ITK.DEFC), through 2023\n")
+    fh.write("# world_number_millions: FAO via World Bank Health Nutrition and Population Statistics (SN.ITK.DEFC), through 2023\n")
     fh.write("# 2025 row: SOFI 2026 newest vintage (FAO et al., published 2026-07-21)\n")
     fh.write(f"# Retrieved {data['metaPercent'].get('retrieved', '2026-10-15')}\n")
     writer = csv.DictWriter(fh, fieldnames=["year", "world_share_percent", "world_number_millions", "note"])
