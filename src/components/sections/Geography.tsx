@@ -174,14 +174,23 @@ export function Geography() {
                   <h4 className="country-panel__name">{nameOf(selectedRec)}</h4>
                   <p className="country-panel__meta">
                     {selectedRec.stale
-                      ? t.ch3.tableStaleNote.replace("{year}", String(selectedRec.year))
+                      ? t.ch3.panelStaleArchived
+                          .replace("{value}",
+                            selectedRec.below
+                              ? t.ch3.tableBelow
+                              : `${selectedRec.value.toFixed(1)}%`)
+                          .replace("{year}", String(selectedRec.year))
                       : selectedRec.below
                         ? t.ch3.tooltipBelow
                         : `${t.ch3.tooltipIndicator} · ${t.ch3.tableYear} ${selectedRec.year}`}
                   </p>
                 </div>
                 <p className="stat-number country-panel__value">
-                  {selectedRec.stale ? t.ch3.tooltipNoData : `${selectedRec.value.toFixed(1)}%`}
+                  {selectedRec.stale
+                    ? t.ch3.tooltipNoData
+                    : selectedRec.below
+                      ? t.ch3.panelBelow
+                      : `${selectedRec.value.toFixed(1)}%`}
                 </p>
                 <button
                   type="button"
@@ -268,38 +277,52 @@ export function Geography() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((c) => (
-                    <tr
-                      key={c.code}
-                      onClick={() => setSelected(c.code)}
-                      style={{ cursor: "pointer" }}
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          setSelected(c.code);
-                        }
-                      }}
-                      aria-label={`${nameOf(c)} ${c.value.toFixed(1)}% ${c.year}`}
-                    >
-                      <td>{nameOf(c)}</td>
-                      <td>
-                        {c.stale
-                          ? t.ch3.tooltipNoData
-                          : c.below
-                            ? t.ch3.tableBelow
-                            : `${c.value.toFixed(1)}`}
-                      </td>
-                      <td>
-                        {c.stale
-                          ? t.ch3.tableStaleNote.replace("{year}", String(c.year))
-                          : c.year}
-                      </td>
-                    </tr>
-                  ))}
+                  {rows.map((c) => {
+                    // Cell-level semantics: stale rows keep their archived value
+                    // and year with a footnote marker; below rows show the FAO
+                    // floor text. The aria-label reads exactly what the visible
+                    // cells say (plus the footnote explanation for stale rows)
+                    // so screen readers never announce a hidden number.
+                    const cellValue = c.stale
+                      ? `${c.below ? t.ch3.tableBelow : `${c.value.toFixed(1)}%`}†`
+                      : c.below
+                        ? t.ch3.tableBelow
+                        : `${c.value.toFixed(1)}%`;
+                    const cellYear = c.stale ? `${c.year}†` : String(c.year);
+                    const ariaText = c.stale
+                      ? `${nameOf(c)}: ${cellValue}, ${t.ch3.tableYear} ${cellYear} — ${t.ch3.tooltipNoData}. ${t.ch3.tableArchivedNote}`
+                      : c.below
+                        ? `${nameOf(c)}: ${t.ch3.tooltipBelow}, ${t.ch3.tableYear} ${cellYear}`
+                        : `${nameOf(c)}: ${cellValue}, ${t.ch3.tableYear} ${cellYear}`;
+                    return (
+                      <tr
+                        key={c.code}
+                        onClick={() => setSelected(c.code)}
+                        style={{ cursor: "pointer" }}
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setSelected(c.code);
+                          }
+                        }}
+                        aria-label={ariaText}
+                      >
+                        <td>{nameOf(c)}</td>
+                        <td>{cellValue}</td>
+                        <td>{cellYear}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+            <p
+              className="chart-note"
+              style={{ margin: "0.6rem 0 0", fontSize: "0.78rem", color: "var(--cream-dim)" }}
+            >
+              {t.ch3.tableArchivedNote}
+            </p>
           </div>
         </Reveal>
 

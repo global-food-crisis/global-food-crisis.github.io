@@ -1,0 +1,23 @@
+# tests/typescript-baseline.txt — documented known type issues
+# -------------------------------------------------------------
+# These tsc diagnostics are PRE-EXISTING from the original baseline
+# commit 99bdf68 (verified byte-identical there; see the verification
+# reports dated 2026-10-26 and 2026-10-27). They do not gate the
+# production build (next.config.ts documents ignoreBuildErrors for
+# this reason) and are tracked here so PR CI can tell "known issue"
+# from "new regression".
+#
+# Gate policy (scripts/check_tsc_baseline.py, wired into
+# .github/workflows/pr-validation.yml):
+#   PASS  — current diagnostics are a subset of this file
+#   FAIL  — any diagnostic not listed here (new regression)
+#   INFO  — disappeared diagnostics are reported as resolved
+#
+# Regenerate after fixing or intentionally re-baselining:
+#   bunx tsc --noEmit > tsc-current.txt
+#   python3 scripts/check_tsc_baseline.py --write tsc-current.txt
+src/components/charts/BaseChart.tsx(64,40): error TS2694: Namespace '"<ROOT>/node_modules/echarts/core"' has no exported member 'TooltipComponentOption'.
+src/components/charts/TrendChart.tsx(107,5): error TS18046: 'series' is of type 'unknown'.
+src/components/charts/TrendChart.tsx(86,9): error TS18046: 'series' is of type 'unknown'.
+src/components/sections/Trend.tsx(207,28): error TS2339: Property 'sofi' does not exist on type '{ year: number; pct: number; num: number | null; }'.
+src/components/sections/Trend.tsx(37,7): error TS2353: Object literal may only specify known properties, and 'sofi' does not exist in type '{ year: number; pct: number; num: number | null; }'.

@@ -1,5 +1,7 @@
 // Diagnose: numeric years on a category axis (ECharts 6.1.0) — reproduces the
 // exact option shape used by PriceIndexChart.tsx and inspects layout results.
+// Data path resolves relative to this script (scripts/ -> repo root), so it
+// works from any working directory on Linux, macOS and Windows.
 import * as echarts from "echarts/core";
 import { LineChart } from "echarts/charts";
 import {
@@ -9,6 +11,9 @@ import {
   TooltipComponent,
 } from "echarts/components";
 import { SVGRenderer } from "echarts/renderers";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 
 echarts.use([
   LineChart,
@@ -19,12 +24,10 @@ echarts.use([
   SVGRenderer,
 ]);
 
-const data = JSON.parse(
-  (await import("node:fs")).readFileSync(
-    "/home/z/my-project/public/data/food-price-index.json",
-    "utf8",
-  ),
-);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DATA_PATH = path.resolve(__dirname, "../public/data/food-price-index.json");
+
+const data = JSON.parse(readFileSync(DATA_PATH, "utf8"));
 const series = data.series; // [{year: 2000, value: 53.7}, ...]
 
 function runCase(label, { xAxisData, lineData, markCoord }) {

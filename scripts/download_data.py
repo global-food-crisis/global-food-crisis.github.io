@@ -10,7 +10,8 @@ unreachable, so the pipeline remains reproducible offline):
    License: CC BY 4.0 (OWID), underlying data (c) FAO.
 
 2. Number of undernourished people in the world, 2001–2023
-   Source: World Bank WDI indicator SN.ITK.DEFC (data (c) FAO)
+   Source: World Bank indicator SN.ITK.DEFC (Health Nutrition and Population
+   Statistics, source id 16; underlying data (c) FAO)
    https://api.worldbank.org/v2/country/WLD/indicator/SN.ITK.DEFC
 
 3. Natural Earth 50m admin-0 country boundaries (public domain)
@@ -47,7 +48,7 @@ SOURCES = {
             "https://api.worldbank.org/v2/country/WLD/indicator/SN.ITK.DEFC"
             "?format=json&per_page=100&date=1999:2026"
         ),
-        "note": "World Bank WDI SN.ITK.DEFC (FAO), CC BY 4.0",
+        "note": "World Bank HNP Statistics SN.ITK.DEFC (FAO), CC BY 4.0",
     },
     "ne_50m_admin_0_countries.geojson": {
         "url": (

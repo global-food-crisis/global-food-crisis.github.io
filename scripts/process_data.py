@@ -3,7 +3,7 @@
 
 Inputs (produced by download_data.py / curated in data/manual/):
   data/raw/prevalence-of-undernourishment.csv  (FAO SDG 2.1.1 via OWID)
-  data/raw/wb-world-undernourished.json        (World Bank WDI SN.ITK.DEFC)
+  data/raw/wb-world-undernourished.json        (World Bank HNP Statistics SN.ITK.DEFC)
   data/raw/ne_50m_admin_0_countries.geojson    (Natural Earth 50m)
   data/manual/fao-food-price-index.csv         (FAO FFPI annual, verified)
   data/manual/grfc-acute-food-insecurity.csv   (GRFC 2016-2025 series)
@@ -54,6 +54,15 @@ A3_TO_A2_EXTRA = {
 NE_CODE_FIXES = {
     "PSX": "PSE",  # Palestine
 }
+
+# Estimates that predate a known, major disruption to the measured population
+# are explicitly excluded from current-status mapping even when their year
+# label would otherwise pass the staleness rule (GFC-002, audit 2026-10-26):
+# the Sudan's latest chronic estimate (2021, 11.0%) predates the April 2023
+# civil war, so coloring it as a current condition would misread a pre-war
+# snapshot as today's crisis. The archived value and year stay visible in the
+# data table (marked as archived) and in the selection panel.
+PRE_DISRUPTION_NO_CURRENT = {"SDN"}
 
 
 def read_csv_rows(path):
@@ -112,11 +121,13 @@ def build_pou_country():
     for code, (year, value) in sorted(per_country.items()):
         # FAO convention: countries below 2.5% prevalence are reported as 2.5
         below = value == 2.5
-        # Flag assessments older than 2021 as stale: they are kept for
-        # transparency in the data table but rendered as "no recent data"
-        # on the map so that outdated values cannot be mistaken for current
-        # ones (e.g. Cuba's last assessment 2006, DPR Korea 2018).
-        stale = year < 2021
+        # Flag assessments older than 2021 as stale, plus the explicit
+        # pre-disruption exclusions above: stale rows are kept for
+        # transparency in the data table (with their archived value and year)
+        # but rendered as "no recent data" on the map so that outdated values
+        # cannot be mistaken for current ones (Cuba's last assessment 2006,
+        # DPR Korea 2018, and the Sudan's pre-war 2021 estimate).
+        stale = year < 2021 or code in PRE_DISRUPTION_NO_CURRENT
         countries.append(
             {
                 "code": code,
@@ -134,14 +145,21 @@ def build_pou_country():
         "url": "https://ourworldindata.org/grapher/prevalence-of-undernourishment.csv",
         "republishedBy": "Our World in Data",
         "license": "CC BY 4.0 (OWID); underlying data (c) FAO",
-        "referenceYear": "latest available per country (2022-2023)",
+        "sourceEdition": "FAO 2025 edition, as republished by Our World in Data",
+        "sourceUpdated": "2026-02-25",
+        "averagingPeriod": "country values are three-year averages (UN SDG 2.1.1 metadata); unlike the annual global/regional estimates",
+        "referenceYear": "latest available per country (2023 for 166 of 170; older archived labels kept where newer assessments are absent)",
         "retrieved": RETRIEVED,
         "note": (
-            "FAO reports '<2.5%' for countries whose prevalence is below 2.5%; "
-            "such values are flagged with below=true. Entries with stale=true "
-            "have no assessment since 2020 and render as 'no recent data' on "
-            "the map. FAO revises this series periodically - see "
-            "docs/methodology.md."
+            "Archived snapshot. FAO reports '<2.5%' for countries whose "
+            "prevalence is below 2.5%; such values are flagged with below=true. "
+            "Entries with stale=true are too old to be read as current "
+            "conditions (assessments before 2021, plus the Sudan whose 2021 "
+            "estimate predates the April 2023 war) and render as 'no recent "
+            "data' on the map; their archived values and years stay in the "
+            "data table. The download date is not the statistical reference "
+            "period or the original FAO edition date. FAO revises this series "
+            "periodically - see docs/methodology.md."
         ),
     }
     return {"meta": meta, "countries": countries}
@@ -178,7 +196,8 @@ def build_trend():
         "oceania": "Oceania (FAO)",
     }
 
-    # World number series from World Bank WDI
+    # World number series from World Bank (Health Nutrition and Population
+    # Statistics; the Bank lists SN.ITK.DEFC under source id 16, not WDI)
     with open(os.path.join(RAW, "wb-world-undernourished.json"), encoding="utf-8") as fh:
         wb = json.load(fh)
     world_number = [
@@ -194,21 +213,33 @@ def build_trend():
         "url": "https://ourworldindata.org/grapher/prevalence-of-undernourishment.csv",
         "republishedBy": "Our World in Data",
         "license": "CC BY 4.0 (OWID); underlying data (c) FAO",
+        "sourceEdition": "FAO 2025 edition, as republished by Our World in Data",
+        "sourceUpdated": "2026-02-25",
         "referencePeriod": "2000-2024",
         "retrieved": RETRIEVED,
         "note": (
             "FAO reports '<2.5%' for prevalence below 2.5% (measurement floor); "
             "such points carry below=true. The Europe (FAO) aggregate sits "
-            "below the floor in every year of this series."
+            "below the floor in every year of this series. Global and regional "
+            "values are annual estimates; country-level values elsewhere in "
+            "this project are three-year averages."
         ),
     }
     meta_num = {
-        "publisher": "FAO (via World Bank WDI)",
+        "publisher": "FAO (via World Bank, Health Nutrition and Population Statistics)",
         "dataset": "Number of people undernourished, World (millions), SN.ITK.DEFC",
         "url": "https://api.worldbank.org/v2/country/WLD/indicator/SN.ITK.DEFC",
         "license": "CC BY 4.0 (World Bank)",
         "referencePeriod": "2001-2023",
         "retrieved": RETRIEVED,
+        "note": (
+            "The World Bank API lists this indicator under source id 16 "
+            "(Health Nutrition and Population Statistics), not WDI proper; "
+            "the underlying data are FAO estimates. This number series and "
+            "the OWID-republished share series come from different publication "
+            "channels and vintages - do not divide one by the other to "
+            "estimate populations."
+        ),
     }
     meta_sofi = {
         "publisher": "FAO, IFAD, UNICEF, WFP, WHO",
@@ -255,9 +286,13 @@ def build_fpi():
         "referencePeriod": "2000-2025",
         "retrieved": RETRIEVED,
         "note": (
-            "Annual averages of the monthly index. 2024 (122.0) and 2025 (127.2) "
-            "verified against FAO news releases; full verification trail in "
-            "docs/sources.md. March 2022 monthly peak: 160.3 points."
+            "Annual averages of the monthly index. Values for 2009-2025 were "
+            "verified against FAO, Food Outlook (June 2026), Table 4.4 "
+            "(print p. 85 / PDF p. 98). Values for 2000-2008 come from the "
+            "FAO-derived annual-values series in the manual CSV and have not "
+            "been independently re-verified against a primary FAO table - see "
+            "data/manual/fao-food-price-index.csv and docs/limitations.md. "
+            "March 2022 monthly peak: 160.3 points."
         ),
     }
     return {"meta": meta, "series": series}
@@ -292,15 +327,22 @@ def build_grfc():
         "dataset": "People facing high levels of acute food insecurity (IPC/CH Phase 3+)",
         "report": "2026 Global Report on Food Crises (published 2026-04-24)",
         "url": "https://www.fightfoodcrises.net/global-report-food-crises",
-        "fullPdf": "https://reliefweb.int/attachments/81ec5beb-e188-402b-999b-9bdc3bfa62bf/cd9424en.pdf",
-        "license": "(c) FAO, cited with attribution",
+        "fullPdf": "https://openknowledge.fao.org/server/api/core/bitstreams/86067cbb-9396-4e7d-8d19-e60ad00d2f73/content",
+        "license": "CC BY 4.0 (FAO/GNAFC, with third-party exceptions per the report's copyright page)",
         "referencePeriod": "2016-2025 (2025 reference year for drivers)",
         "retrieved": RETRIEVED,
         "note": (
-            "Year-to-year comparisons are affected by changing country coverage: "
-            "the 2026 edition covers 47 countries/territories, the lowest in a "
-            "decade. Driver attribution assigns one PRIMARY driver per country; "
-            "driver populations overlap and must not be added together."
+            "Series transcribed from GRFC 2026 Figure 2.7 (print p. 26); "
+            "driver breakdown from section 2.4, Figures 2.5 (p. 22) and 2.6 "
+            "(p. 25). Year-to-year comparisons are affected by changing "
+            "country coverage: the 2026 edition covers 47 countries/territories, "
+            "the lowest in a decade. Driver attribution assigns one PRIMARY "
+            "driver per country context: the three 2025 populations sum to "
+            "264.7 million against the 265.7 million total, because GRFC "
+            "excludes separately assessed displaced groups whose primary driver "
+            "differs. The categories describe country-level attribution, not "
+            "exclusive individual causes; drivers co-occur, and 31 countries "
+            "reported economic shocks as an additional driver."
         ),
     }
     return {

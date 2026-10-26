@@ -4,9 +4,11 @@
 # Publisher: Global Network Against Food Crises (GNAFC)
 # Report:    2026 Global Report on Food Crises (published 2026-04-24)
 # URL:       https://www.fightfoodcrises.net/global-report-food-crises
-# Full PDF:  https://reliefweb.int/attachments/81ec5beb-e188-402b-999b-9bdc3bfa62bf/cd9424en.pdf
+# Full PDF:  https://openknowledge.fao.org/server/api/core/bitstreams/86067cbb-9396-4e7d-8d19-e60ad00d2f73/content
 #
-# VALUES: transcribed from the report's Section 2.2 (drivers):
+# VALUES: transcribed from the report's Section 2.4 (drivers),
+# Figures 2.5 (p. 22) and 2.6 (p. 25) (locator corrected from "Section 2.2"
+# per the independent audit, GFC-016):
 #   "Conflict and insecurity were the primary driver in 19 countries/
 #    territories, where 147.4 million people faced high levels of acute food
 #    insecurity in 2025 – more than 50 percent of all people in countries with
@@ -19,9 +21,14 @@
 # ADDITIONAL driver (not primary) in 2025.
 #
 # NOTE: The GRFC attributes one PRIMARY driver per country where possible.
-# Drivers overlap in reality; these categories are not mutually exclusive
-# populations. Totals by driver must not be added to the 266 million total —
-# the attribution reflects the most influential driver per country context.
+# The three primary-driver populations sum to 264.7 million, slightly below
+# the 265.7 million overall total: per Figures 2.5 and 2.6, GRFC excludes
+# separately assessed displaced groups from this driver breakdown when
+# their primary driver differs, to avoid double counting. The categories
+# describe country-level attribution, not exclusive individual causes —
+# drivers co-occur in reality, and 31 countries/territories reported
+# economic shocks as an ADDITIONAL driver (not primary) in 2025. Totals by
+# driver must not be added to other indicators.
 #
 # Retrieved: 2026-10-15
 #

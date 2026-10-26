@@ -24,6 +24,12 @@ CHECKS = 0
 A3 = re.compile(r"^[A-Z]{3}$")
 A2 = re.compile(r"^[A-Z]{2}$")
 
+# Codes explicitly excluded from current-status mapping because their latest
+# estimate predates a known major disruption (see process_data.py, GFC-002):
+# the Sudan's 2021 chronic estimate predates the April 2023 civil war.
+# Must stay in sync with PRE_DISRUPTION_NO_CURRENT in process_data.py.
+PRE_DISRUPTION_NO_CURRENT = {"SDN"}
+
 
 def check(condition, message):
     global CHECKS
@@ -52,7 +58,13 @@ def validate_pou():
         codes.add(code)
         check(0 < c.get("value", -1) <= 100, f"pou-country.json: value out of range for {code}")
         if c.get("stale"):
-            check(c["year"] < 2021, f"pou-country.json: stale flag but recent year for {code}")
+            # Stale = pre-2021 assessment, or an explicit pre-disruption
+            # exclusion (SDN 2021 predates the April 2023 war).
+            ok_stale = c["year"] < 2021 or (
+                c["year"] == 2021 and code in PRE_DISRUPTION_NO_CURRENT
+            )
+            check(ok_stale,
+                  f"pou-country.json: stale flag but recent year for {code}")
         else:
             check(c.get("year") in (2021, 2022, 2023),
                   f"pou-country.json: unexpected year for {code}")
@@ -63,8 +75,14 @@ def validate_pou():
         )
     below = [c for c in countries if c.get("below")]
     check(all(c["value"] == 2.5 for c in below), "pou-country.json: below flag on value != 2.5")
+    stale = [c for c in countries if c.get("stale")]
+    check(all(c["code"] in PRE_DISRUPTION_NO_CURRENT or c["year"] < 2021 for c in stale),
+          "pou-country.json: unexpected stale entry")
+    check("SDN" in {c["code"] for c in stale},
+          "pou-country.json: the Sudan must be excluded from current-status mapping (GFC-002)")
     print(f"  pou-country.json: {len(countries)} countries "
-          f"({len(below)} reported as '<2.5%')")
+          f"({len(below)} reported as '<2.5%', {len(stale)} stale: "
+          f"{sorted(c['code'] for c in stale)})")
 
 
 def validate_trend():
@@ -145,10 +163,11 @@ def validate_grfc():
     total = sum(x["millions"] for x in drivers)
     check(abs(total - 265.7) <= 10,
           "grfc: primary-driver attribution should cover roughly the total "
-          "(one primary driver per country; small residue from contexts "
-          "without attribution)")
+          "(one primary driver per country; GRFC excludes separately "
+          "assessed displaced groups whose primary driver differs)")
     print(f"  acute-food-insecurity.json: {len(series)} years, 3 drivers "
-          f"({total:.1f}M attributed - nearly disjoint, one primary driver per country)")
+          f"({total:.1f}M attributed vs 265.7M total; country-level "
+          f"attribution, not exclusive individual causes)")
 
 
 def validate_map():

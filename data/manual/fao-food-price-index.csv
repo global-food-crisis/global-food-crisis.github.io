@@ -8,11 +8,17 @@
 # Reference period: annual averages, calendar years
 #
 # RETRIEVAL NOTE:
-# FAO's machine-readable download files are gated by a bot-protection service,
-# so these values were compiled from the FAO FFPI data as published in the
-# annual-values table of the Wikipedia article "FAO Food Price Index"
-# (https://en.wikipedia.org/wiki/FAO_Food_Price_Index, which cites FAO as its
-# source) and CROSS-VERIFIED against FAO's own public releases:
+# FAO's machine-readable download files are gated by a bot-protection service.
+# Values for 2009-2025 were VERIFIED against the primary FAO table:
+# FAO, Food Outlook — Biannual Report on Global Food Markets, June 2026,
+# Table 4.4 "Food Price Index" (print p. 85 / PDF p. 98), accessed 2026-10-26
+# during the independent audit (finding GFC-016). All 17 values matched.
+# Values for 2000-2008 come from the FAO-derived annual-values series of the
+# Wikipedia article "FAO Food Price Index"
+# (https://en.wikipedia.org/wiki/FAO_Food_Price_Index, which cites FAO as
+# its source); they have NOT been independently re-verified against a
+# primary FAO table and are marked accordingly.
+# Additional cross-checks against FAO's own public releases:
 #   - 2024 = 122.0  verified: FAO release 2025-01-03 ("For 2024 as a whole, the
 #     index recorded 122.0 points, 2.1 percent lower than 2023")
 #   - 2025 = 127.2  verified: FAO release 2026-01-09 ("For the whole of 2025,
@@ -20,7 +26,8 @@
 #   - 2023 = 124.5  cross-check: 122.0 = 124.5 x (1 - 0.021) within rounding
 #   - March 2022 monthly peak of 160.3 points confirmed on FAO's live page
 #     (retrieved 2026-10-15), consistent with 2022 annual value of 144.5.
-# Earlier years (2000-2022) come from the same FAO-derived series.
+# Before republishing or extending this series, re-verify against
+# https://www.fao.org/worldfoodsituation/FoodPricesIndex/en
 # Retrieved: 2026-10-15
 #
 year,value
