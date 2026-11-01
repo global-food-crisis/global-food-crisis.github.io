@@ -434,7 +434,11 @@ body {
   flex: none;
 }
 
-.lang-switch button {
+.lang-switch a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   font-family: var(--font-ui);
   font-size: 0.74rem;
   font-weight: 600;
@@ -447,12 +451,12 @@ body {
   transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-.lang-switch button[aria-pressed="true"] {
+.lang-switch a[aria-current="page"] {
   background: var(--gold);
   color: #141d1a;
 }
 
-.lang-switch button[aria-pressed="false"]:hover {
+.lang-switch a:not([aria-current="page"]):hover {
   color: var(--cream);
   background: var(--ink-3);
 }

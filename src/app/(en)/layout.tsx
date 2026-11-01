@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, Newsreader } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { LanguageProvider } from "@/i18n";
 import { SITE_URL } from "@/lib/site";
 
@@ -34,6 +34,11 @@ export const metadata: Metadata = {
     // Consolidates the three reachable origins (apex, www, github.io — the
     // latter two 301 here) into one canonical URL for search engines.
     canonical: "/",
+    languages: {
+      en: "/",
+      "zh-TW": "/zh-TW/",
+      "x-default": "/",
+    },
   },
   openGraph: {
     title: "Global Food Crisis — Chapter 01",
@@ -44,16 +49,8 @@ export const metadata: Metadata = {
   },
 };
 
-// Runs before first paint: applies a stored language preference to <html lang>
-// (avoiding an English flash for returning zh-TW readers) and removes the
-// no-js class so reveal animations only apply when JavaScript is available.
-const earlyPrefs = `
-try {
-  var stored = localStorage.getItem("gfc.language");
-  if (stored === "zh-TW") document.documentElement.lang = "zh-TW";
-} catch (e) {}
-document.documentElement.classList.remove("no-js");
-`;
+// Enable reveal animations when JavaScript is available.
+const earlyPrefs = `document.documentElement.classList.remove("no-js");`;
 
 export default function RootLayout({
   children,
@@ -68,7 +65,7 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${newsreader.variable} ${inter.variable} antialiased bg-background text-foreground`}
       >
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider initialLocale="en" routeBound>{children}</LanguageProvider>
       </body>
     </html>
   );
