@@ -58,7 +58,7 @@ export function TrendChart({ data }: { data: TrendData }) {
     const isPercent = metric === "percent";
     const sofiPoint = isPercent ? data.sofi2026.percent : data.sofi2026.number;
 
-    const series: ChartOption["series"] = [
+    const series: Array<import("echarts").LineSeriesOption | import("echarts").ScatterSeriesOption> = [
       {
         type: "line",
         id: "world",

@@ -61,7 +61,7 @@ export const THEME = {
   mapScale: ["#3f5449", "#5c7b60", "#8fa074", "#c7a36c", "#ce8b54", "#c05b3b"],
 };
 
-export function baseTooltip(): echarts.TooltipComponentOption {
+export function baseTooltip(): import("echarts").TooltipComponentOption {
   return {
     backgroundColor: "#101a18",
     borderColor: "rgba(199,163,108,0.45)",
