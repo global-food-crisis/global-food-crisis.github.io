@@ -27,6 +27,7 @@ import {
   useState,
 } from "react";
 import { useI18n, type Locale } from "@/i18n";
+import { BASE_PATH } from "@/lib/basePath";
 
 const SECTION_IDS = ["ch1", "ch2", "ch3", "ch4", "ch5", "ch6"];
 
@@ -36,7 +37,7 @@ const useIsomorphicLayoutEffect =
   typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export function Header() {
-  const { locale, t, setLocale } = useI18n();
+  const { locale, t } = useI18n();
   const [active, setActive] = useState(0);
   const navRef = useRef<HTMLElement | null>(null);
   // Scroller affordance state. Defaults assume scrollLeft = 0 (matches the
@@ -123,9 +124,18 @@ export function Header() {
     el.scrollBy({ left: direction * amount, behavior: reduced ? "auto" : "smooth" });
   };
 
-  const switchTo = (next: Locale) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    setLocale(next);
+  const switchTo = (next: Locale) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (next === locale || e.defaultPrevented) return;
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    try {
+      window.localStorage.setItem("gfc.language", next);
+    } catch {
+      // Navigation must work even if storage is blocked.
+    }
+    const chapter = SECTION_IDS[active];
+    if (chapter) {
+      e.currentTarget.href = `${BASE_PATH}${next === "zh-TW" ? "/zh-TW/" : "/"}#${chapter}`;
+    }
   };
 
   return (
@@ -172,22 +182,22 @@ export function Header() {
           aria-label={t.nav.langSwitchLabel}
           title={t.nav.langSwitchAria}
         >
-          <button
-            type="button"
-            aria-pressed={locale === "en"}
-            onClick={locale === "en" ? undefined : switchTo("en")}
+          <a
+            href={`${BASE_PATH}/`}
+            aria-current={locale === "en" ? "page" : undefined}
+            onClick={switchTo("en")}
             lang="en"
           >
             EN
-          </button>
-          <button
-            type="button"
-            aria-pressed={locale === "zh-TW"}
-            onClick={locale === "zh-TW" ? undefined : switchTo("zh-TW")}
+          </a>
+          <a
+            href={`${BASE_PATH}/zh-TW/`}
+            aria-current={locale === "zh-TW" ? "page" : undefined}
+            onClick={switchTo("zh-TW")}
             lang="zh-TW"
           >
             繁中
-          </button>
+          </a>
         </div>
       </div>
     </header>

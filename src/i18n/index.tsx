@@ -35,12 +35,13 @@ function isValidLocale(value: string | null): value is Locale {
   return value === "en" || value === "zh-TW";
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+export function LanguageProvider({ children, initialLocale = "en", routeBound = false }: { children: React.ReactNode; initialLocale?: Locale; routeBound?: boolean }) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   // Restore a stored preference on mount (client only; deferred to a
   // microtask so hydration completes before the state swap).
   useEffect(() => {
+    if (routeBound) return;
     const id = window.setTimeout(() => {
       try {
         const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -50,7 +51,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       }
     }, 0);
     return () => window.clearTimeout(id);
-  }, []);
+  }, [routeBound]);
 
   // Keep <html lang> and the document title in sync with the locale.
   // Guard: Next.js re-commits the build-time (English) <title> when its
@@ -59,6 +60,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   // tab title. A MutationObserver re-asserts the locale title in the same
   // microtask checkpoint, so the clobber never becomes visible.
   useEffect(() => {
+    if (routeBound) return;
     document.documentElement.lang = locale;
     const localeTitle = DICTS[locale].meta.siteTitle;
     document.title = localeTitle;
@@ -75,7 +77,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       subtree: true,
     });
     return () => observer.disconnect();
-  }, [locale]);
+  }, [locale, routeBound]);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
