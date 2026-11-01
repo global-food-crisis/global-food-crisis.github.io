@@ -25,7 +25,7 @@ export function Trend() {
     if (trend.status !== "ready" || !trend.data) return [];
     const d = trend.data;
     const numbers = new Map(d.worldNumber.map((p) => [p.year, p.value]));
-    const rows = d.worldPercent.map((p) => ({
+    const rows: Array<{ year: number; pct: number; num: number | null; sofi?: boolean }> = d.worldPercent.map((p) => ({
       year: p.year,
       pct: p.value,
       num: numbers.get(p.year) ?? null,
